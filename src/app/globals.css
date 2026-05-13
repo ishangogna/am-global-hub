@@ -8,9 +8,19 @@ html {
 
 body {
   margin: 0;
-  background: #f7f3ee;
-  color: #0f172a;
   overflow-x: hidden;
+  background: #f7f3ee;
+  color: #111827;
+  font-family: var(--font-inter);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-playfair);
 }
 
 .container-premium {
@@ -18,6 +28,13 @@ body {
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@media (min-width: 768px) {
+  .container-premium {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
 }
