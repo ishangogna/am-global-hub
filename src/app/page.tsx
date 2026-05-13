@@ -3,6 +3,7 @@ import Categories from '@/components/home/Categories'
 import FeaturedProducts from '@/components/home/FeaturedProducts'
 import Branding from '@/components/home/Branding'
 import Process from '@/components/home/Process'
+import HowItWorks from '@/components/home/HowItWorks'
 
 export default function HomePage() {
   return (
@@ -11,7 +12,7 @@ export default function HomePage() {
       <Categories />
       <FeaturedProducts />
       <Branding />
-      <Process />
+      <HowItWorks />
     </main>
   )
 }
