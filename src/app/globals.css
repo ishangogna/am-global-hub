@@ -1,8 +1,14 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #faf8f5;
-  --foreground: #111111;
+  --background: #faf7f2;
+  --foreground: #0f172a;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html {
@@ -10,9 +16,11 @@ html {
 }
 
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter);
+  font-family: var(--font-inter), sans-serif;
+  overflow-x: hidden;
 }
 
 h1,
@@ -21,9 +29,23 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-playfair);
+  font-family: var(--font-playfair), serif;
+  letter-spacing: -0.02em;
 }
 
-.container-custom {
-  @apply max-w-7xl mx-auto px-6 lg:px-12;
+.container-premium {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.section-spacing {
+  padding-top: 120px;
+  padding-bottom: 120px;
+}
+
+.shadow-luxury {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
 }
