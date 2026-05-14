@@ -64,7 +64,7 @@ export default function Hero({ hero }: HeroProps) {
           <div className='mt-10 grid grid-cols-2 gap-5 sm:grid-cols-4'>
             <div>
               <h3 className='text-2xl font-semibold text-[#B88A44] md:text-3xl'>
-                500+
+                100+
               </h3>
 
               <p className='mt-1 text-xs text-[#667085] md:text-sm'>
@@ -74,7 +74,7 @@ export default function Hero({ hero }: HeroProps) {
 
             <div>
               <h3 className='text-2xl font-semibold text-[#B88A44] md:text-3xl'>
-                10K+
+                1K+
               </h3>
 
               <p className='mt-1 text-xs text-[#667085] md:text-sm'>
