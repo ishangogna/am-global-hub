@@ -13,27 +13,15 @@ export default function Navbar() {
       {/* NAVBAR */}
       <header className='fixed top-0 z-50 w-full border-b border-black/5 bg-white/80 backdrop-blur-xl'>
         <div className='container-premium flex h-16 items-center justify-between md:h-20'>
-          {/* LOGO */}
-          {/* <Link
-            href='/'
-            className='flex flex-col'
-          >
-            <span className='text-base font-semibold tracking-wide text-[#111827] md:text-lg'>
-              AM GLOBAL HUB2
-            </span>
-
-            <span className='text-[10px] uppercase tracking-[0.3em] text-[#B88A44] md:text-xs'>
-              Corporate Gifting
-            </span>
-          </Link> */}
-
-          <Link href='/'>
+          <Link href='/' className='flex items-center'>
   <Image
     src='/images/logo.png'
     alt='AM Global Hub'
     width={140}
     height={40}
     priority
+    className='mix-blend-multiply'
+    style={{ background: 'transparent' }}
   />
 </Link>
 
