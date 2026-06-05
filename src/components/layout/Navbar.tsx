@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
@@ -13,18 +14,28 @@ export default function Navbar() {
       <header className='fixed top-0 z-50 w-full border-b border-black/5 bg-white/80 backdrop-blur-xl'>
         <div className='container-premium flex h-16 items-center justify-between md:h-20'>
           {/* LOGO */}
-          <Link
+          {/* <Link
             href='/'
             className='flex flex-col'
           >
             <span className='text-base font-semibold tracking-wide text-[#111827] md:text-lg'>
-              AM GLOBAL HUB
+              AM GLOBAL HUB2
             </span>
 
             <span className='text-[10px] uppercase tracking-[0.3em] text-[#B88A44] md:text-xs'>
               Corporate Gifting
             </span>
-          </Link>
+          </Link> */}
+
+          <Link href='/'>
+  <Image
+    src='/images/logo.png'
+    alt='AM Global Hub'
+    width={140}
+    height={40}
+    priority
+  />
+</Link>
 
           {/* DESKTOP NAV */}
           <nav className='hidden items-center gap-8 lg:flex'>
@@ -91,7 +102,7 @@ export default function Navbar() {
           <div className='flex items-center justify-between'>
             <div>
               <h2 className='text-lg font-semibold text-[#111827]'>
-                AM GLOBAL HUB
+                AM GLOBAL HUB2
               </h2>
 
               <p className='mt-1 text-xs uppercase tracking-[0.25em] text-[#B88A44]'>
