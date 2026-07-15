@@ -1,103 +1,146 @@
-# How to Add Products to AM Global Hub
+# AM Global Hub — Admin Dashboard Guide
 
 ## Overview
 
-Products are managed through the Admin Dashboard at `/admin`. No coding required — just fill out a form and the product appears live on the `/products` page immediately.
+The admin dashboard at `/admin` is the control centre for the entire website. It requires login and covers three areas: **Products**, **Categories**, and **Featured Products**. No coding required for any of these tasks.
 
 ---
 
-## Prerequisites
+## Logging In
 
-Before adding a product, make sure you have:
+Navigate to `/admin` in your browser. You will be automatically redirected to `/admin/login`.
 
-- A **product image** hosted online (e.g. uploaded to Supabase Storage, Cloudinary, or any public URL)
-- The **category** the product belongs to already created in Supabase
-- Access to the admin page at `http://localhost:3000/admin` (or your live domain `/admin`)
+| Field | Value |
+|---|---|
+| **Username** | `admin` |
+| **Password** | `AmGlobalHub@123` |
+
+After a successful login you are redirected to the dashboard. The session lasts **7 days** — you won't need to log in again on the same device within that window.
+
+To log out, click the **Sign Out** button in the top-right corner of the dashboard.
+
+> If you visit `/admin/login` while already logged in, you are automatically redirected to the dashboard.
 
 ---
 
-## Step-by-Step Instructions
+## Dashboard Tabs
 
-### 1. Open the Admin Dashboard
-
-Navigate to `/admin` in your browser. You'll see the **Add Product** form on the left and existing products on the right.
+The dashboard has three tabs accessible from the tab bar at the top of the page.
 
 ---
 
-### 2. Fill Out the Product Form
+## Tab 1 — Products
+
+### Adding a Product
+
+Fill in the form on the left side of the Products tab.
 
 | Field | Description | Required |
 |---|---|---|
-| **Product Name** | Full display name of the product (e.g. "Executive Leather Notebook") | ✅ Yes |
-| **Slug** | URL-friendly identifier, lowercase with hyphens (e.g. `executive-leather-notebook`) | ✅ Yes |
-| **Description** | Short description shown on the product card and detail page | No |
-| **Image URL** | Full public URL to the product image (e.g. `https://...supabase.co/storage/...`) | No |
-| **Category** | Select from the dropdown — this links the product to a category | No |
-| **MOQ** | Minimum Order Quantity (e.g. `50`) | No |
-| **Price Range** | Display price string (e.g. `₹999 – ₹1,499`) | No |
+| **Image URL** | Full public URL to the product image. A live preview appears above the field as you type. | No |
+| **Product Name** | Full display name (e.g. "Executive Leather Notebook") | ✅ Yes |
+| **Slug** | URL-safe identifier used in `/products/<slug>`. Auto-generated from the name — click **Manual** to override. | ✅ Yes |
+| **Description** | Shown on the product card and detail page | No |
+| **Category** | Select from the dropdown. Categories are managed in the Categories tab. | No |
+| **MOQ** | Minimum Order Quantity as a number (e.g. `50`) | No |
+| **Price Range** | Display price string (e.g. `₹999–₹1,499`) | No |
+| **Featured toggle** | If enabled, the product appears in the Featured Products section on the homepage | No |
 
----
+Click **Add Product**. A success toast appears and the product is immediately visible in the grid on the right.
 
-### 3. Slug Rules
+### Slug Rules
 
 The slug is used in the product URL: `/products/<slug>`
 
-- Use only **lowercase letters, numbers, and hyphens**
+- Lowercase letters, numbers, and hyphens only
 - No spaces or special characters
-- Must be **unique** — two products cannot share the same slug
+- Must be unique — two products cannot share the same slug
 
 ✅ Good: `wireless-charger-pro`  
-❌ Bad: `Wireless Charger Pro`, `wireless_charger`, `wireless charger`
+❌ Bad: `Wireless Charger`, `wireless_charger`, `wireless charger`
+
+The slug is auto-generated from the product name as you type. Switch to **Manual** mode if you need to set a custom slug.
+
+### Viewing a Product
+
+Each product card in the grid has a **View Page** button that opens the live `/products/<slug>` page in a new tab.
+
+### Deleting a Product
+
+Each product card has a **Delete** button. This permanently removes the product from the database.
+
+> ⚠️ Deletion is permanent and cannot be undone.
 
 ---
 
-### 4. Click "Add Product"
+## Tab 2 — Categories
 
-Hit the **Add Product** button. You'll see a success toast notification at the top right. The product will immediately appear in:
+Categories control two things simultaneously:
+- The **filter pills** on the `/products` page
+- The **Categories grid** on the homepage
 
-- The product grid on `/products`
-- The relevant category page at `/categories/<category-slug>`
-- The admin dashboard product list
+### Adding a Category
+
+| Field | Description | Required |
+|---|---|---|
+| **Image URL** | Used as the category card image on the homepage. Live preview shown. | No |
+| **Category Name** | Display name (e.g. "Executive Kits") | ✅ Yes |
+| **Slug** | URL-safe identifier used in `/categories/<slug>` and the products filter. Auto-generated from the name. | ✅ Yes |
+| **Description** | Shown on the homepage category card | No |
+
+Click **Add Category**. It immediately appears on the `/products` filter bar and the homepage Categories section.
+
+### Viewing a Category
+
+Each category card has a **View Page** button that opens `/categories/<slug>` in a new tab.
+
+### Deleting a Category
+
+Click **Delete** on the category card. This removes the category from the filter bar and the homepage.
+
+> ⚠️ Deleting a category does **not** reassign products. Any product linked to that category will show no category label until manually reassigned via the Products tab.
 
 ---
 
-### 5. Verify the Product
+## Tab 3 — Featured
 
-After adding:
+This tab lets you control exactly which products appear in the **Featured Products** section on the homepage.
 
-1. Go to `/products` and confirm the product appears in the grid
-2. Click the product card — it should open `/products/<your-slug>`
-3. If you assigned a category, visit `/categories/<category-slug>` to confirm it appears there too
+Every product in the database is shown as a card here. Featured products are highlighted with a gold border.
 
----
+| Action | Effect |
+|---|---|
+| **Add to Featured** | Sets `featured = true` — product appears on the homepage on next visit |
+| **Remove from Featured** | Sets `featured = false` — product is removed from the homepage section |
 
-## Deleting a Product
+Changes take effect immediately in the database and are visible on the homepage on the next page load. There is no upper limit on how many products can be featured.
 
-On the Admin Dashboard, each product card has a **Delete Product** button. Clicking it will ask for confirmation, then permanently remove the product from the database.
-
-> ⚠️ This action cannot be undone.
+> If no products are featured, the Featured Products section on the homepage is hidden automatically.
 
 ---
 
 ## Uploading Images
 
-The admin form accepts any public image URL. The recommended workflow:
+The admin forms accept any public image URL. Recommended workflow:
 
 1. Go to your **Supabase project → Storage**
-2. Upload the image to the `products` bucket (or create one if it doesn't exist)
+2. Upload the image to the `products` (or `categories`) bucket — create it if it doesn't exist
 3. Set the bucket to **Public**
 4. Copy the public URL and paste it into the **Image URL** field
 
 Recommended image specs:
-- **Format:** JPG or PNG
-- **Aspect ratio:** 1:1 (square) — product cards display images in a square crop
-- **Size:** Under 500KB for fast loading
+
+| Use | Format | Aspect Ratio | Max Size |
+|---|---|---|---|
+| Product images | JPG or PNG | 1:1 (square) | 500 KB |
+| Category images | JPG or PNG | 16:9 or 4:3 | 500 KB |
 
 ---
 
 ## Tips
 
-- Always fill in a **description** — it appears on both the card and the detail page
-- Use a **price range string** like `₹500 – ₹1,200` rather than a number, since pricing is display-only
-- If a product isn't showing up, double-check the slug for spaces or uppercase letters
-- The `/admin` page has **no login protection** — keep the URL private until auth is added
+- Always add a **description** — it appears on both the product card and the detail page
+- Use a **price range string** like `₹500–₹1,200` rather than a number, since pricing is display-only
+- If a product isn't showing up on `/products`, double-check the slug for spaces or uppercase letters
+- The **Featured** tab is the fastest way to refresh what appears on the homepage — no re-publishing needed
+- Category and product changes are **live immediately** — no deployment required
