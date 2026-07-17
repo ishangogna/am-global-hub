@@ -22,6 +22,23 @@ function slugify(str: string) {
     .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
 }
 
+function convertImageUrl(url: string): string {
+  // Convert Google Drive share links to direct CDN URLs
+  // Handles: drive.google.com/file/d/ID/view, drive.google.com/open?id=ID, drive.google.com/uc?export=view&id=ID
+  const patterns = [
+    /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,
+    /drive\.google\.com\/uc\?.*id=([a-zA-Z0-9_-]+)/,
+  ]
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match && match[1]) {
+      return `https://lh3.googleusercontent.com/d/${match[1]}`
+    }
+  }
+  return url
+}
+
 type Tab = 'products' | 'categories' | 'featured' | 'testimonials' | 'quotes'
 
 export default function AdminPage() {
@@ -254,7 +271,7 @@ export default function AdminPage() {
                       : <div className="flex flex-col items-center gap-2 text-[#667085]"><ImageIcon className="h-7 w-7 opacity-40" /><span className="text-xs">Image preview</span></div>
                     }
                   </div>
-                  <input value={productForm.image_url} onChange={(e) => setProductForm((p) => ({ ...p, image_url: e.target.value }))} placeholder="https://example.com/image.jpg" className={inputCls} />
+                  <input value={productForm.image_url} onChange={(e) => setProductForm((p) => ({ ...p, image_url: convertImageUrl(e.target.value) }))} placeholder="https://example.com/image.jpg or Google Drive link" className={inputCls} />
                 </div>
                 {/* Name */}
                 <div>
@@ -385,7 +402,7 @@ export default function AdminPage() {
                       : <div className="flex flex-col items-center gap-2 text-[#667085]"><ImageIcon className="h-7 w-7 opacity-40" /><span className="text-xs">Image preview</span></div>
                     }
                   </div>
-                  <input value={categoryForm.image_url} onChange={(e) => setCategoryForm((p) => ({ ...p, image_url: e.target.value }))} placeholder="https://example.com/image.jpg" className={inputCls} />
+                  <input value={categoryForm.image_url} onChange={(e) => setCategoryForm((p) => ({ ...p, image_url: convertImageUrl(e.target.value) }))} placeholder="https://example.com/image.jpg or Google Drive link" className={inputCls} />
                 </div>
                 {/* Name */}
                 <div>
