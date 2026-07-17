@@ -811,7 +811,7 @@ desc_items4 = [
     ]),
     sp(4), h2('Info Cards (right)'),
     *bul([
-        '<b>Meet the Team</b> — bio for Raman Oberoi and Akshit Oberoi',
+        '<b>Meet the Team</b> — bio for Akshit Oberoi',
         '<b>Address</b> — Cabin No. 4, A-201, Block A, Lajpat Nagar I, New Delhi 110024 with "Open in Google Maps" link',
         '<b>Phone</b> — +91 83687 72989, clickable tel: link',
         '<b>Instagram</b> — gradient card, links to @amglobalhub',

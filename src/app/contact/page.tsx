@@ -90,7 +90,7 @@ export default function ContactPage() {
                 <CheckCircle2 className="h-16 w-16 text-[#B88A44]" />
                 <h3 className="mt-5 text-2xl font-semibold text-[#0F172A]">Message Received!</h3>
                 <p className="mt-2 max-w-xs text-sm text-[#667085]">
-                  Thanks for reaching out. Akshit or Raman will get back to you shortly.
+                  Thanks for reaching out. We will get back to you shortly.
                 </p>
                 <button
                   onClick={() => { setSubmitted(false); setForm({ name: '', company: '', email: '', phone: '', message: '' }) }}
