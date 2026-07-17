@@ -3,6 +3,8 @@ import HowItWorks from '@/components/home/HowItWorks'
 import Categories from '@/components/home/Categories'
 import FeaturedProducts from '@/components/home/FeaturedProducts'
 import Branding from '@/components/home/Branding'
+import Testimonials from '@/components/home/Testimonials'
+import CTABanner from '@/components/home/CTABanner'
 
 export default function HomePage() {
   return (
@@ -12,6 +14,8 @@ export default function HomePage() {
       <Categories />
       <FeaturedProducts />
       <Branding />
+      <Testimonials />
+      <CTABanner />
     </main>
   )
 }

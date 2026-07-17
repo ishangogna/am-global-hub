@@ -14,8 +14,8 @@ export default function Branding() {
             {/* IMAGE CARD */}
             <div className='relative overflow-hidden rounded-[32px] border border-white/60 bg-white p-4 shadow-2xl'>
               <img
-                src='/branding.jpg'
-                alt='Corporate Branding'
+                src='https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=800&q=80'
+                alt='Corporate Branding & Premium Packaging'
                 className='h-[500px] w-full rounded-[24px] object-cover'
               />
             </div>
