@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { MessageSquare, X, CheckCircle2, Loader2 } from 'lucide-react'
 
-const WA_NUMBER = '918168667321'
+const WA_NUMBER = '918368772989'
 
 function buildWhatsAppUrl(productName: string, form: {
   name: string; company: string; email: string; phone: string; quantity: string; message: string

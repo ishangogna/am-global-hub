@@ -182,10 +182,10 @@ export default function ContactPage() {
                 Meet the Team
               </span>
               <h3 className="mt-4 text-lg font-semibold text-[#0F172A]">
-                Akshit &amp; Raman Oberoi
+                Akshit Oberoi
               </h3>
               <p className="mt-2 text-sm leading-6 text-[#667085]">
-                AM Global Hub is a family-run business based in the heart of New Delhi, run by Raman Oberoi and Akshit Oberoi. They bring a personal touch to every order — from curating the right products to ensuring flawless delivery across India.
+                AM Global Hub is a family-run business based in the heart of New Delhi, run by Akshit Oberoi. They bring a personal touch to every order — from curating the right products to ensuring flawless delivery across India.
               </p>
             </div>
 
@@ -269,7 +269,7 @@ export default function ContactPage() {
               </p>
               <div className="mt-4">
                 <a
-                  href="https://wa.me/918168667321?text=Hi%2C%20I%27m%20interested%20in%20your%20corporate%20gifting%20solutions."
+                  href="https://wa.me/918368772989?text=Hi%2C%20I%27m%20interested%20in%20your%20corporate%20gifting%20solutions."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"

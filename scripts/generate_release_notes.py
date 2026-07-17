@@ -815,7 +815,7 @@ desc_items4 = [
         '<b>Address</b> — Cabin No. 4, A-201, Block A, Lajpat Nagar I, New Delhi 110024 with "Open in Google Maps" link',
         '<b>Phone</b> — +91 83687 72989, clickable tel: link',
         '<b>Instagram</b> — gradient card, links to @amglobalhub',
-        '<b>WhatsApp</b> — green card with "WhatsApp Us" button (Akshit, +91 8168667321), pre-filled message',
+        '<b>WhatsApp</b> — green card with "WhatsApp Us" button (Akshit, +91 8368772989), pre-filled message',
         '<b>Hours</b> — Mon–Sat 10 AM–5 PM (Sat 10:30 AM); Sunday Closed. Today\'s row highlighted gold.',
     ]),
     sp(4), h2('Map'),
@@ -843,7 +843,7 @@ desc_items5 = [
         'Closing resets the form and success state',
     ]),
     sp(4), h2('WhatsApp Integration'),
-    p('Tapping "WhatsApp Us" opens WhatsApp with a pre-filled message to <b>+91 8168667321</b> (Akshit). The message includes all filled-in form fields. Optional fields are omitted if blank.'),
+    p('Tapping "WhatsApp Us" opens WhatsApp with a pre-filled message to <b>+91 8368772989</b> (Akshit). The message includes all filled-in form fields. Optional fields are omitted if blank.'),
 ]
 story += [two_col(wf_items5, desc_items5, W*0.42, W*0.56), sp(6)]
 story += [
