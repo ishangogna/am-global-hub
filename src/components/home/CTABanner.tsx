@@ -29,7 +29,7 @@ export default function CTABanner() {
             <ArrowRight className="h-4 w-4" />
           </Link>
           <a
-            href="https://wa.me/918168667321?text=Hi%2C%20I%27m%20interested%20in%20your%20corporate%20gifting%20solutions."
+            href="https://wa.me/918368772989?text=Hi%2C%20I%27m%20interested%20in%20your%20corporate%20gifting%20solutions."
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20"

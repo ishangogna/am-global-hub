@@ -50,7 +50,7 @@ export default function ContactPage() {
       form.message,
     ].filter(Boolean).join('\n')
 
-    return `https://wa.me/918168667321?text=${encodeURIComponent(lines)}`
+    return `https://wa.me/918368772989?text=${encodeURIComponent(lines)}`
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
