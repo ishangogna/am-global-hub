@@ -156,7 +156,7 @@ export default async function ProductDetails({
 
             {/* CTA */}
             <div className="space-y-3">
-              <RequestQuoteModal productName={data.name} />
+              <RequestQuoteModal productName={data.name} productId={data.id} />
               <Link
                 href="/contact"
                 className="flex w-full items-center justify-center rounded-xl border border-black/10 bg-white px-8 py-4 text-base font-semibold text-[#0F172A] transition hover:border-[#B88A44] hover:text-[#B88A44]"

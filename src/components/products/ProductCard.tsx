@@ -1,7 +1,58 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Heart } from 'lucide-react'
+import { createAuthClient } from '@/lib/supabase-auth'
 
 export default function ProductCard({ product }: any) {
+  const supabase = createAuthClient()
+  const [saved, setSaved] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function checkSaved() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      setUserId(user.id)
+
+      const { data } = await supabase
+        .from('saved_products')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('product_id', product.id)
+        .single()
+
+      if (data) setSaved(true)
+    }
+    checkSaved()
+  }, [product.id])
+
+  async function toggleSave(e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!userId) {
+      // Not logged in — redirect to auth
+      window.location.href = '/auth'
+      return
+    }
+
+    if (saved) {
+      await supabase
+        .from('saved_products')
+        .delete()
+        .eq('user_id', userId)
+        .eq('product_id', product.id)
+      setSaved(false)
+    } else {
+      await supabase
+        .from('saved_products')
+        .insert([{ user_id: userId, product_id: product.id }])
+      setSaved(true)
+    }
+  }
+
   return (
     <Link href={`/products/${product.slug}`}>
       <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-black/5 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-lg">
@@ -29,11 +80,23 @@ export default function ProductCard({ product }: any) {
               Featured
             </span>
           )}
+
+          {/* Wishlist heart */}
+          <button
+            onClick={toggleSave}
+            className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border transition duration-200 ${
+              saved
+                ? 'border-red-200 bg-red-50 text-red-500'
+                : 'border-black/10 bg-white/80 text-[#667085] opacity-0 group-hover:opacity-100 hover:border-red-200 hover:text-red-500'
+            }`}
+            aria-label={saved ? 'Remove from wishlist' : 'Add to wishlist'}
+          >
+            <Heart className={`h-4 w-4 ${saved ? 'fill-red-500' : ''}`} />
+          </button>
         </div>
 
         {/* CONTENT */}
         <div className="flex flex-1 flex-col p-4">
-          {/* Category */}
           {product.category && (
             <span className="mb-2 text-[10px] font-medium uppercase tracking-widest text-[#B88A44]">
               {product.category}

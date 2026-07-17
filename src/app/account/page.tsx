@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { User, Mail, Phone, Bell, LogOut, Loader2, CheckCircle2, ChevronRight } from 'lucide-react'
+import { User, Mail, Phone, Bell, LogOut, Loader2, CheckCircle2, ChevronRight, Heart, FileText } from 'lucide-react'
 import { createAuthClient } from '@/lib/supabase-auth'
 import Link from 'next/link'
 
@@ -20,6 +20,8 @@ export default function AccountPage() {
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
   const [newsletter, setNewsletter] = useState(true)
+  const [savedProducts, setSavedProducts] = useState<any[]>([])
+  const [quoteHistory, setQuoteHistory] = useState<any[]>([])
 
   useEffect(() => {
     async function load() {
@@ -27,17 +29,19 @@ export default function AccountPage() {
       if (!user) { router.replace('/auth'); return }
       setUser(user)
 
-      const { data: cust } = await supabase
-        .from('customers')
-        .select('*')
-        .eq('user_id', user.id)
-        .single()
+      const [{ data: cust }, { data: savedProds }, { data: quotes }] = await Promise.all([
+        supabase.from('customers').select('*').eq('user_id', user.id).single(),
+        supabase.from('saved_products').select('*, products(id, name, slug, image_url, price_range)').eq('user_id', user.id).order('created_at', { ascending: false }),
+        supabase.from('quote_requests').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(10),
+      ])
 
       setCustomer(cust)
       setFirstName(cust?.first_name ?? '')
       setLastName(cust?.last_name ?? '')
       setPhone(cust?.phone ?? '')
       setNewsletter(cust?.subscribed_newsletter ?? true)
+      setSavedProducts(savedProds || [])
+      setQuoteHistory(quotes || [])
       setLoading(false)
     }
     load()
@@ -214,6 +218,85 @@ export default function AccountPage() {
               </button>
             </div>
           </div>
+
+          {/* Saved Products */}
+          {savedProducts.length > 0 && (
+            <div className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3 border-b border-black/5 pb-4">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50">
+                  <Heart className="h-4 w-4 text-red-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#0F172A]">Saved Products</p>
+                  <p className="text-xs text-[#667085]">{savedProducts.length} item{savedProducts.length !== 1 ? 's' : ''} saved</p>
+                </div>
+              </div>
+              <div className="mt-4 space-y-3">
+                {savedProducts.map((sp) => {
+                  const prod = sp.products
+                  if (!prod) return null
+                  return (
+                    <Link
+                      key={sp.id}
+                      href={`/products/${prod.slug}`}
+                      className="flex items-center gap-4 rounded-xl border border-black/5 p-3 transition hover:border-[#B88A44]/30 hover:bg-[#FAF7F2]"
+                    >
+                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-[#F8F5EF]">
+                        {prod.image_url ? (
+                          <img src={prod.image_url} alt={prod.name} className="h-full w-full object-contain p-1" />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-lg opacity-20">🎁</div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[#0F172A] truncate">{prod.name}</p>
+                        {prod.price_range && <p className="text-xs text-[#B88A44] font-semibold">{prod.price_range}</p>}
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Quote History */}
+          {quoteHistory.length > 0 && (
+            <div className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3 border-b border-black/5 pb-4">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#B88A44]/10">
+                  <FileText className="h-4 w-4 text-[#B88A44]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#0F172A]">Quote History</p>
+                  <p className="text-xs text-[#667085]">Your recent quote requests</p>
+                </div>
+              </div>
+              <div className="mt-4 space-y-3">
+                {quoteHistory.map((q) => (
+                  <div key={q.id} className="rounded-xl border border-black/5 p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-[#0F172A]">{q.product_name}</p>
+                        <p className="mt-0.5 text-xs text-[#667085]">Qty: {q.quantity}</p>
+                      </div>
+                      <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+                        q.status === 'pending' ? 'bg-amber-50 text-amber-600' :
+                        q.status === 'responded' ? 'bg-blue-50 text-blue-600' :
+                        q.status === 'confirmed' ? 'bg-green-50 text-green-600' :
+                        q.status === 'completed' ? 'bg-[#B88A44]/10 text-[#B88A44]' :
+                        'bg-black/5 text-[#667085]'
+                      }`}>
+                        {q.status?.charAt(0).toUpperCase() + q.status?.slice(1)}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-[10px] text-[#667085]">
+                      {new Date(q.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Member since */}
           {customer?.created_at && (
