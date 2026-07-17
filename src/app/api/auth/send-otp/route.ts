@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     // Send email via Resend
     const { error: emailError } = await resend.emails.send({
-      from: 'AM Global Hub <onboarding@resend.dev>',
+      from: 'AM Global Hub <noreply@amglobalhub.com>',
       to: normalizedEmail,
       subject: 'Your sign-in code for AM Global Hub',
       html: `

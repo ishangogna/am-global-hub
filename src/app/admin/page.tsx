@@ -54,6 +54,7 @@ export default function AdminPage() {
   const [loadingCategory, setLoadingCategory] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deleteCatId, setDeleteCatId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [testimonials, setTestimonials] = useState<any[]>([])
   const [testimonialForm, setTestimonialForm] = useState(EMPTY_TESTIMONIAL)
   const [loadingTestimonial, setLoadingTestimonial] = useState(false)
@@ -99,6 +100,51 @@ export default function AdminPage() {
     setLoadingProduct(false)
     if (error) { toast.error(error.message); return }
     toast.success('Product added!')
+    setProductForm(EMPTY_PRODUCT); setAutoSlug(true); fetchData()
+  }
+
+  function startEditProduct(product: any) {
+    setEditingId(product.id)
+    setProductForm({
+      name: product.name || '',
+      slug: product.slug || '',
+      description: product.description || '',
+      image_url: product.image_url || '',
+      category_id: product.category_id || '',
+      moq: product.moq ? String(product.moq) : '',
+      price_range: product.price_range || '',
+      featured: product.featured || false,
+    })
+    setAutoSlug(false)
+    // Scroll to form
+    window.scrollTo({ top: 200, behavior: 'smooth' })
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+    setProductForm(EMPTY_PRODUCT)
+    setAutoSlug(true)
+  }
+
+  async function updateProduct() {
+    if (!productForm.name.trim() || !productForm.slug.trim()) {
+      toast.error('Product name and slug are required.'); return
+    }
+    setLoadingProduct(true)
+    const { error } = await supabase.from('products').update({
+      name: productForm.name,
+      slug: productForm.slug,
+      description: productForm.description || null,
+      image_url: productForm.image_url || null,
+      category_id: productForm.category_id || null,
+      moq: productForm.moq ? Number(productForm.moq) : null,
+      price_range: productForm.price_range || null,
+      featured: productForm.featured,
+    }).eq('id', editingId)
+    setLoadingProduct(false)
+    if (error) { toast.error(error.message); return }
+    toast.success('Product updated!')
+    setEditingId(null)
     setProductForm(EMPTY_PRODUCT); setAutoSlug(true); fetchData()
   }
 
@@ -259,7 +305,12 @@ export default function AdminPage() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#B88A44]/10">
                   <Plus className="h-4 w-4 text-[#B88A44]" />
                 </div>
-                <h2 className="text-lg font-semibold text-[#0F172A]">Add Product</h2>
+                <h2 className="text-lg font-semibold text-[#0F172A]">{editingId ? 'Edit Product' : 'Add Product'}</h2>
+                {editingId && (
+                  <button onClick={cancelEdit} className="ml-auto text-xs font-medium text-[#667085] transition hover:text-red-500">
+                    Cancel
+                  </button>
+                )}
               </div>
               <div className="space-y-5 p-6">
                 {/* Image preview */}
@@ -326,9 +377,9 @@ export default function AdminPage() {
                     <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${productForm.featured ? 'translate-x-5' : 'translate-x-0.5'}`} />
                   </div>
                 </label>
-                <button onClick={addProduct} disabled={loadingProduct}
+                <button onClick={editingId ? updateProduct : addProduct} disabled={loadingProduct}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#B88A44] py-3.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60">
-                  {loadingProduct ? <><Loader2 className="h-4 w-4 animate-spin" />Adding…</> : <><Plus className="h-4 w-4" />Add Product</>}
+                  {loadingProduct ? <><Loader2 className="h-4 w-4 animate-spin" />{editingId ? 'Updating…' : 'Adding…'}</> : <><Plus className="h-4 w-4" />{editingId ? 'Update Product' : 'Add Product'}</>}
                 </button>
               </div>
             </div>
@@ -364,12 +415,15 @@ export default function AdminPage() {
                         <div className="mt-4 flex gap-2">
                           <a href={`/products/${product.slug}`} target="_blank" rel="noopener noreferrer"
                             className="flex-1 rounded-xl border border-black/10 py-2 text-center text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44]">
-                            View Page
+                            View
                           </a>
+                          <button onClick={() => startEditProduct(product)}
+                            className="flex-1 rounded-xl border border-[#B88A44]/30 py-2 text-center text-xs font-medium text-[#B88A44] transition hover:bg-[#B88A44]/5">
+                            Edit
+                          </button>
                           <button onClick={() => deleteProduct(product.id)} disabled={deleteId === product.id}
                             className="flex items-center gap-1.5 rounded-xl border border-red-100 px-3 py-2 text-xs font-medium text-red-500 transition hover:bg-red-50 disabled:opacity-50">
                             {deleteId === product.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                            Delete
                           </button>
                         </div>
                       </div>
