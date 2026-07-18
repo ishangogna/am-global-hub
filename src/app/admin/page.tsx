@@ -363,7 +363,13 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <label className="mb-1.5 block text-xs font-medium text-[#0F172A]">Price Range</label>
-                    <input value={productForm.price_range} onChange={(e) => setProductForm((p) => ({ ...p, price_range: e.target.value }))} placeholder="₹500–₹1,200" className={inputCls} />
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-medium text-[#B88A44]">₹</span>
+                      <input value={productForm.price_range.replace(/^₹\s*/, '')} onChange={(e) => {
+                        const val = e.target.value.replace(/^₹\s*/, '')
+                        setProductForm((p) => ({ ...p, price_range: val ? `₹${val}` : '' }))
+                      }} placeholder="500–1,200" className={`${inputCls} pl-8`} />
+                    </div>
                   </div>
                 </div>
                 {/* Featured toggle */}
