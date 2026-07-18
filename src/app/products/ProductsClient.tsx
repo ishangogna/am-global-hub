@@ -13,48 +13,67 @@ export default function ProductsClient({
   const router = useRouter()
 
   const [products, setProducts] = useState<any[]>([])
+  const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [searchInput, setSearchInput] = useState('')
   const [category, setCategoryState] = useState<string | null>(initialCategory)
+  const [page, setPage] = useState(1)
+  const PAGE_SIZE = 12
 
   const fetchProducts = async (opts?: {
     search?: string
     category?: string | null
+    page?: number
   }) => {
     setLoading(true)
+    const currentPage = opts?.page ?? page
+    const from = (currentPage - 1) * PAGE_SIZE
+    const to = from + PAGE_SIZE - 1
 
     let query = supabase
       .from('products')
-      .select('*')
+      .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
+      .range(from, to)
 
     if (opts?.category) query = query.eq('category_id', opts.category)
     if (opts?.search) query = query.ilike('name', `%${opts.search}%`)
 
-    const { data } = await query
+    const { data, count } = await query
     setProducts(data || [])
+    setTotalCount(count ?? 0)
     setLoading(false)
   }
 
   useEffect(() => {
-    fetchProducts({ category: initialCategory })
+    fetchProducts({ category: initialCategory, page: 1 })
   }, [initialCategory])
 
   const setCategory = (catId: string | null) => {
     setCategoryState(catId)
+    setPage(1)
     const params = new URLSearchParams()
     if (catId) params.set('category', catId)
     router.push(`/products?${params.toString()}`, { scroll: false })
-    fetchProducts({ category: catId, search: searchInput || undefined })
+    fetchProducts({ category: catId, search: searchInput || undefined, page: 1 })
   }
 
   const handleSearch = () => {
-    fetchProducts({ category, search: searchInput || undefined })
+    setPage(1)
+    fetchProducts({ category, search: searchInput || undefined, page: 1 })
+  }
+
+  const goToPage = (p: number) => {
+    setPage(p)
+    fetchProducts({ category, search: searchInput || undefined, page: p })
+    window.scrollTo({ top: 400, behavior: 'smooth' })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleSearch()
   }
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
   const activeCategoryName =
     categories.find((c: any) => c.id === category)?.name ?? 'All Products'
@@ -157,9 +176,10 @@ export default function ProductsClient({
           {!loading && (
             <div className="mb-7 flex items-center justify-between">
               <p className="text-sm text-[#667085]">
-                <span className="font-semibold text-[#0F172A]">{products.length}</span>{' '}
-                {products.length === 1 ? 'product' : 'products'}
+                <span className="font-semibold text-[#0F172A]">{totalCount}</span>{' '}
+                {totalCount === 1 ? 'product' : 'products'}
                 {category ? ` in ${activeCategoryName}` : ''}
+                {totalPages > 1 && <span className="ml-2 text-[#667085]">· Page {page} of {totalPages}</span>}
               </p>
             </div>
           )}
@@ -179,11 +199,66 @@ export default function ProductsClient({
               ))}
             </div>
           ) : products.length > 0 ? (
-            <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+
+              {/* PAGINATION */}
+              {totalPages > 1 && (
+                <div className="mt-12 flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => goToPage(page - 1)}
+                    disabled={page === 1}
+                    className="flex items-center gap-1 rounded-xl border border-black/10 px-4 py-2.5 text-sm font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-black/10 disabled:hover:text-[#667085]"
+                  >
+                    ← Previous
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((p) => {
+                        // Show first, last, current, and neighbors
+                        if (p === 1 || p === totalPages) return true
+                        if (Math.abs(p - page) <= 1) return true
+                        return false
+                      })
+                      .reduce<(number | string)[]>((acc, p, idx, arr) => {
+                        if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...')
+                        acc.push(p)
+                        return acc
+                      }, [])
+                      .map((p, idx) =>
+                        p === '...' ? (
+                          <span key={`dots-${idx}`} className="px-2 text-sm text-[#667085]">…</span>
+                        ) : (
+                          <button
+                            key={p}
+                            onClick={() => goToPage(p as number)}
+                            className={`h-10 w-10 rounded-xl text-sm font-medium transition ${
+                              page === p
+                                ? 'bg-[#B88A44] text-white shadow-sm'
+                                : 'border border-black/10 text-[#667085] hover:border-[#B88A44] hover:text-[#B88A44]'
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        )
+                      )}
+                  </div>
+
+                  <button
+                    onClick={() => goToPage(page + 1)}
+                    disabled={page === totalPages}
+                    className="flex items-center gap-1 rounded-xl border border-black/10 px-4 py-2.5 text-sm font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-black/10 disabled:hover:text-[#667085]"
+                  >
+                    Next →
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             /* EMPTY STATE */
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-black/10 bg-white py-24 text-center">
