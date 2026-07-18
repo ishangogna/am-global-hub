@@ -17,14 +17,14 @@ interface HeroProps {
 
 export default function Hero({ hero }: HeroProps) {
   return (
-    <section className='overflow-hidden bg-[#F7F3EE]'>
+    <section className='bg-[#F7F3EE]'>
       <div className='container-premium grid items-center gap-12 py-10 md:py-16 lg:min-h-screen lg:grid-cols-2 lg:gap-20'>
         {/* LEFT CONTENT */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className='order-2 max-w-2xl lg:order-1'
+          className='relative z-10 order-2 max-w-2xl lg:order-1'
         >
           {/* BADGE */}
           <span className='inline-flex rounded-full border border-[#B88A44]/15 bg-[#B88A44]/10 px-4 py-2 text-xs font-medium text-[#B88A44] md:text-sm'>
@@ -44,17 +44,17 @@ export default function Hero({ hero }: HeroProps) {
           </p>
 
           {/* BUTTONS */}
-          <div className='mt-8 flex flex-col gap-3 sm:flex-row sm:items-center'>
+          <div className='relative z-10 mt-8 flex flex-col gap-3 sm:flex-row sm:items-center'>
             <Link
               href={hero?.button_link || '/products'}
-              className='flex items-center justify-center rounded-xl bg-[#B88A44] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 md:px-8 md:py-4'
+              className='inline-flex items-center justify-center rounded-xl bg-[#B88A44] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 md:px-8 md:py-4'
             >
               {hero?.button_text || 'Explore Collection'}
             </Link>
 
             <Link
               href='/contact'
-              className='flex items-center justify-center rounded-xl border border-black/10 bg-white px-6 py-3 text-sm font-medium text-[#111827] transition hover:bg-black hover:text-white md:px-8 md:py-4'
+              className='inline-flex items-center justify-center rounded-xl border border-black/10 bg-white px-6 py-3 text-sm font-medium text-[#111827] transition hover:bg-black hover:text-white md:px-8 md:py-4'
             >
               Talk To Our Team
             </Link>
@@ -109,10 +109,10 @@ export default function Hero({ hero }: HeroProps) {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7 }}
-          className='order-1 mx-auto w-full max-w-[620px] lg:order-2'
+          className='relative order-1 mx-auto w-full max-w-[620px] lg:order-2'
         >
           {/* GLOW */}
-          <div className='absolute inset-0 rounded-[40px] bg-[#B88A44]/10 blur-3xl' />
+          <div className='pointer-events-none absolute inset-0 -z-10 rounded-[40px] bg-[#B88A44]/10 blur-3xl' />
 
           {/* IMAGE CARD */}
           <div className='relative overflow-hidden rounded-[28px] border border-white/40 bg-white p-3 shadow-2xl md:rounded-[36px] md:p-5'>

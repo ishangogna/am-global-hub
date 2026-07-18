@@ -62,6 +62,13 @@ export default function ProductsClient({
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
 
+      {/* ── LOADING BAR ── */}
+      {loading && (
+        <div className="fixed top-0 left-0 right-0 z-[60] h-1 bg-[#FAF7F2]">
+          <div className="h-full w-full origin-left animate-[loading_1.5s_ease-in-out_infinite] bg-gradient-to-r from-[#B88A44] via-[#D4A853] to-[#B88A44]" />
+        </div>
+      )}
+
       {/* ── HERO ── */}
       <section className="border-b border-black/5 bg-gradient-to-b from-[#F8F4ED] to-[#FAF7F2]">
         <div className="container-premium py-20 lg:py-28">
