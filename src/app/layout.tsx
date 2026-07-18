@@ -5,6 +5,7 @@ import { Inter, Playfair_Display } from 'next/font/google'
 
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import RouteLoader from '@/components/layout/RouteLoader'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -37,6 +38,7 @@ export default function RootLayout({
           antialiased
         `}
       >
+        <RouteLoader />
         <Navbar />
 
         <main className='pt-20'>
