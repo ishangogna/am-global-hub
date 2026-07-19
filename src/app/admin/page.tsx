@@ -55,6 +55,12 @@ export default function AdminPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deleteCatId, setDeleteCatId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [adminPage, setAdminPage] = useState(1)
+  const [catPage, setCatPage] = useState(1)
+  const [featPage, setFeatPage] = useState(1)
+  const [testPage, setTestPage] = useState(1)
+  const [quotePage, setQuotePage] = useState(1)
+  const ADMIN_PAGE_SIZE = 9
   const [testimonials, setTestimonials] = useState<any[]>([])
   const [testimonialForm, setTestimonialForm] = useState(EMPTY_TESTIMONIAL)
   const [loadingTestimonial, setLoadingTestimonial] = useState(false)
@@ -429,41 +435,74 @@ export default function AdminPage() {
                   <p className="mt-3 text-sm font-medium text-[#667085]">No products yet</p>
                 </div>
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {products.map((product) => (
-                    <div key={product.id} className="group overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm transition hover:shadow-md">
-                      <div className="relative aspect-[4/3] overflow-hidden bg-[#F8F5EF]">
-                        {product.image_url
-                          ? <img src={product.image_url} alt={product.name} className="h-full w-full object-contain p-4 transition duration-500 group-hover:scale-105" />
-                          : <div className="flex h-full items-center justify-center"><ImageIcon className="h-10 w-10 text-black/15" /></div>
-                        }
-                        {product.featured && <span className="absolute left-3 top-3 rounded-full bg-[#B88A44] px-2.5 py-1 text-[10px] font-semibold text-white">Featured</span>}
-                      </div>
-                      <div className="p-4">
-                        <h3 className="line-clamp-1 font-semibold text-[#0F172A]">{product.name}</h3>
-                        <div className="mt-1 flex flex-wrap items-center gap-2">
-                          {product.category_id && <span className="rounded-full bg-[#B88A44]/10 px-2 py-0.5 text-[10px] font-medium text-[#B88A44]">{categoryName(product.category_id)}</span>}
-                          {product.price_range && <span className="text-xs font-semibold text-[#0F172A]">{product.price_range}</span>}
-                          {product.moq && <span className="text-xs text-[#667085]">MOQ: {product.moq}</span>}
+                <>
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {products.slice((adminPage - 1) * ADMIN_PAGE_SIZE, adminPage * ADMIN_PAGE_SIZE).map((product) => (
+                      <div key={product.id} className="group overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm transition hover:shadow-md">
+                        <div className="relative aspect-[4/3] overflow-hidden bg-[#F8F5EF]">
+                          {product.image_url
+                            ? <img src={product.image_url} alt={product.name} className="h-full w-full object-contain p-4 transition duration-500 group-hover:scale-105" />
+                            : <div className="flex h-full items-center justify-center"><ImageIcon className="h-10 w-10 text-black/15" /></div>
+                          }
+                          {product.featured && <span className="absolute left-3 top-3 rounded-full bg-[#B88A44] px-2.5 py-1 text-[10px] font-semibold text-white">Featured</span>}
                         </div>
-                        <div className="mt-4 flex gap-2">
-                          <a href={`/products/${product.slug}`} target="_blank" rel="noopener noreferrer"
-                            className="flex-1 rounded-xl border border-black/10 py-2 text-center text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44]">
-                            View
-                          </a>
-                          <button onClick={() => startEditProduct(product)}
-                            className="flex-1 rounded-xl border border-[#B88A44]/30 py-2 text-center text-xs font-medium text-[#B88A44] transition hover:bg-[#B88A44]/5">
-                            Edit
-                          </button>
-                          <button onClick={() => deleteProduct(product.id)} disabled={deleteId === product.id}
-                            className="flex items-center gap-1.5 rounded-xl border border-red-100 px-3 py-2 text-xs font-medium text-red-500 transition hover:bg-red-50 disabled:opacity-50">
-                            {deleteId === product.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                          </button>
+                        <div className="p-4">
+                          <h3 className="line-clamp-1 font-semibold text-[#0F172A]">{product.name}</h3>
+                          <div className="mt-1 flex flex-wrap items-center gap-2">
+                            {product.category_id && <span className="rounded-full bg-[#B88A44]/10 px-2 py-0.5 text-[10px] font-medium text-[#B88A44]">{categoryName(product.category_id)}</span>}
+                            {product.price_range && <span className="text-xs font-semibold text-[#0F172A]">{product.price_range}</span>}
+                            {product.moq && <span className="text-xs text-[#667085]">MOQ: {product.moq}</span>}
+                          </div>
+                          <div className="mt-4 flex gap-2">
+                            <a href={`/products/${product.slug}`} target="_blank" rel="noopener noreferrer"
+                              className="flex-1 rounded-xl border border-black/10 py-2 text-center text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44]">
+                              View
+                            </a>
+                            <button onClick={() => startEditProduct(product)}
+                              className="flex-1 rounded-xl border border-[#B88A44]/30 py-2 text-center text-xs font-medium text-[#B88A44] transition hover:bg-[#B88A44]/5">
+                              Edit
+                            </button>
+                            <button onClick={() => deleteProduct(product.id)} disabled={deleteId === product.id}
+                              className="flex items-center gap-1.5 rounded-xl border border-red-100 px-3 py-2 text-xs font-medium text-red-500 transition hover:bg-red-50 disabled:opacity-50">
+                              {deleteId === product.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                            </button>
+                          </div>
                         </div>
                       </div>
+                    ))}
+                  </div>
+
+                  {/* PAGINATION */}
+                  {Math.ceil(products.length / ADMIN_PAGE_SIZE) > 1 && (
+                    <div className="mt-8 flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => setAdminPage((p) => Math.max(1, p - 1))}
+                        disabled={adminPage === 1}
+                        className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        ← Prev
+                      </button>
+                      {Array.from({ length: Math.ceil(products.length / ADMIN_PAGE_SIZE) }, (_, i) => i + 1).map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => setAdminPage(p)}
+                          className={`h-9 w-9 rounded-xl text-xs font-medium transition ${
+                            adminPage === p ? 'bg-[#B88A44] text-white' : 'border border-black/10 text-[#667085] hover:border-[#B88A44] hover:text-[#B88A44]'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => setAdminPage((p) => Math.min(Math.ceil(products.length / ADMIN_PAGE_SIZE), p + 1))}
+                        disabled={adminPage === Math.ceil(products.length / ADMIN_PAGE_SIZE)}
+                        className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        Next →
+                      </button>
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -531,8 +570,9 @@ export default function AdminPage() {
                   <p className="mt-3 text-sm font-medium text-[#667085]">No categories yet</p>
                 </div>
               ) : (
+                <>
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {categories.map((cat) => (
+                  {categories.slice((catPage - 1) * ADMIN_PAGE_SIZE, catPage * ADMIN_PAGE_SIZE).map((cat) => (
                     <div key={cat.id} className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
                       {cat.image_url && (
                         <div className="aspect-[16/9] overflow-hidden bg-[#F8F5EF]">
@@ -558,6 +598,19 @@ export default function AdminPage() {
                     </div>
                   ))}
                 </div>
+                {Math.ceil(categories.length / ADMIN_PAGE_SIZE) > 1 && (
+                  <div className="mt-8 flex items-center justify-center gap-2">
+                    <button onClick={() => setCatPage((p) => Math.max(1, p - 1))} disabled={catPage === 1}
+                      className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed">← Prev</button>
+                    {Array.from({ length: Math.ceil(categories.length / ADMIN_PAGE_SIZE) }, (_, i) => i + 1).map((p) => (
+                      <button key={p} onClick={() => setCatPage(p)}
+                        className={`h-9 w-9 rounded-xl text-xs font-medium transition ${catPage === p ? 'bg-[#B88A44] text-white' : 'border border-black/10 text-[#667085] hover:border-[#B88A44] hover:text-[#B88A44]'}`}>{p}</button>
+                    ))}
+                    <button onClick={() => setCatPage((p) => Math.min(Math.ceil(categories.length / ADMIN_PAGE_SIZE), p + 1))} disabled={catPage === Math.ceil(categories.length / ADMIN_PAGE_SIZE)}
+                      className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed">Next →</button>
+                  </div>
+                )}
+                </>
               )}
             </div>
           </div>
@@ -579,8 +632,9 @@ export default function AdminPage() {
                 <p className="mt-3 text-sm font-medium text-[#667085]">No products yet. Add some from the Products tab.</p>
               </div>
             ) : (
+              <>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {products.map((product) => (
+                {products.slice((featPage - 1) * 12, featPage * 12).map((product) => (
                   <div key={product.id}
                     className={`overflow-hidden rounded-2xl border bg-white shadow-sm transition ${product.featured ? 'border-[#B88A44]/40 ring-2 ring-[#B88A44]/20' : 'border-black/5'}`}>
                     <div className="relative aspect-square overflow-hidden bg-[#F8F5EF]">
@@ -611,6 +665,19 @@ export default function AdminPage() {
                   </div>
                 ))}
               </div>
+              {Math.ceil(products.length / 12) > 1 && (
+                <div className="mt-8 flex items-center justify-center gap-2">
+                  <button onClick={() => setFeatPage((p) => Math.max(1, p - 1))} disabled={featPage === 1}
+                    className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed">← Prev</button>
+                  {Array.from({ length: Math.ceil(products.length / 12) }, (_, i) => i + 1).map((p) => (
+                    <button key={p} onClick={() => setFeatPage(p)}
+                      className={`h-9 w-9 rounded-xl text-xs font-medium transition ${featPage === p ? 'bg-[#B88A44] text-white' : 'border border-black/10 text-[#667085] hover:border-[#B88A44] hover:text-[#B88A44]'}`}>{p}</button>
+                  ))}
+                  <button onClick={() => setFeatPage((p) => Math.min(Math.ceil(products.length / 12), p + 1))} disabled={featPage === Math.ceil(products.length / 12)}
+                    className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed">Next →</button>
+                </div>
+              )}
+              </>
             )}
           </div>
         )}
@@ -671,10 +738,11 @@ export default function AdminPage() {
                   <p className="mt-1 text-xs text-[#667085]">Add your first one using the form.</p>
                 </div>
               ) : (
+                <>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {testimonials.map((t, i) => (
-                    <div key={t.id} className={`rounded-2xl border bg-white p-5 shadow-sm ${i < 3 ? 'border-[#B88A44]/30 ring-1 ring-[#B88A44]/10' : 'border-black/5'}`}>
-                      {i < 3 && <span className="mb-3 inline-block rounded-full bg-[#B88A44]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[#B88A44]">Showing on homepage</span>}
+                  {testimonials.slice((testPage - 1) * 6, testPage * 6).map((t, i) => (
+                    <div key={t.id} className={`rounded-2xl border bg-white p-5 shadow-sm ${(testPage - 1) * 6 + i < 3 ? 'border-[#B88A44]/30 ring-1 ring-[#B88A44]/10' : 'border-black/5'}`}>
+                      {(testPage - 1) * 6 + i < 3 && <span className="mb-3 inline-block rounded-full bg-[#B88A44]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[#B88A44]">Showing on homepage</span>}
                       <div className="flex gap-1 mb-2">
                         {Array.from({ length: t.rating || 5 }).map((_, j) => (
                           <Star key={j} className="h-3.5 w-3.5 fill-[#B88A44] text-[#B88A44]" />
@@ -693,6 +761,19 @@ export default function AdminPage() {
                     </div>
                   ))}
                 </div>
+                {Math.ceil(testimonials.length / 6) > 1 && (
+                  <div className="mt-8 flex items-center justify-center gap-2">
+                    <button onClick={() => setTestPage((p) => Math.max(1, p - 1))} disabled={testPage === 1}
+                      className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed">← Prev</button>
+                    {Array.from({ length: Math.ceil(testimonials.length / 6) }, (_, i) => i + 1).map((p) => (
+                      <button key={p} onClick={() => setTestPage(p)}
+                        className={`h-9 w-9 rounded-xl text-xs font-medium transition ${testPage === p ? 'bg-[#B88A44] text-white' : 'border border-black/10 text-[#667085] hover:border-[#B88A44] hover:text-[#B88A44]'}`}>{p}</button>
+                    ))}
+                    <button onClick={() => setTestPage((p) => Math.min(Math.ceil(testimonials.length / 6), p + 1))} disabled={testPage === Math.ceil(testimonials.length / 6)}
+                      className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed">Next →</button>
+                  </div>
+                )}
+                </>
               )}
             </div>
           </div>
@@ -715,8 +796,9 @@ export default function AdminPage() {
                 <p className="mt-1 text-xs text-[#667085]">They'll appear here when customers submit quotes from product pages.</p>
               </div>
             ) : (
+              <>
               <div className="space-y-4">
-                {quotes.map((q) => (
+                {quotes.slice((quotePage - 1) * 6, quotePage * 6).map((q) => (
                   <div key={q.id} className={`rounded-2xl border bg-white p-5 shadow-sm ${q.status === 'pending' ? 'border-amber-200' : 'border-black/5'}`}>
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       {/* Left: details */}
@@ -770,6 +852,19 @@ export default function AdminPage() {
                   </div>
                 ))}
               </div>
+              {Math.ceil(quotes.length / 6) > 1 && (
+                <div className="mt-8 flex items-center justify-center gap-2">
+                  <button onClick={() => setQuotePage((p) => Math.max(1, p - 1))} disabled={quotePage === 1}
+                    className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed">← Prev</button>
+                  {Array.from({ length: Math.ceil(quotes.length / 6) }, (_, i) => i + 1).map((p) => (
+                    <button key={p} onClick={() => setQuotePage(p)}
+                      className={`h-9 w-9 rounded-xl text-xs font-medium transition ${quotePage === p ? 'bg-[#B88A44] text-white' : 'border border-black/10 text-[#667085] hover:border-[#B88A44] hover:text-[#B88A44]'}`}>{p}</button>
+                  ))}
+                  <button onClick={() => setQuotePage((p) => Math.min(Math.ceil(quotes.length / 6), p + 1))} disabled={quotePage === Math.ceil(quotes.length / 6)}
+                    className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed">Next →</button>
+                </div>
+              )}
+              </>
             )}
           </div>
         )}
