@@ -12,7 +12,7 @@ import {
 
 const EMPTY_PRODUCT = {
   name: '', slug: '', description: '', image_url: '',
-  category_id: '', moq: '', price_range: '', featured: false,
+  category_id: '', moq: '', price_range: '', original_price: '', discounted_price: '', featured: false,
 }
 const EMPTY_CATEGORY = { name: '', slug: '', description: '', image_url: '' }
 const EMPTY_TESTIMONIAL = { name: '', role: '', text: '', rating: '5' }
@@ -95,6 +95,8 @@ export default function AdminPage() {
       category_id: productForm.category_id || null,
       moq: productForm.moq ? Number(productForm.moq) : null,
       price_range: productForm.price_range || null,
+      original_price: productForm.original_price ? Number(productForm.original_price) : null,
+      discounted_price: productForm.discounted_price ? Number(productForm.discounted_price) : null,
       featured: productForm.featured,
     }])
     setLoadingProduct(false)
@@ -113,6 +115,8 @@ export default function AdminPage() {
       category_id: product.category_id || '',
       moq: product.moq ? String(product.moq) : '',
       price_range: product.price_range || '',
+      original_price: product.original_price ? String(product.original_price) : '',
+      discounted_price: product.discounted_price ? String(product.discounted_price) : '',
       featured: product.featured || false,
     })
     setAutoSlug(false)
@@ -139,6 +143,8 @@ export default function AdminPage() {
       category_id: productForm.category_id || null,
       moq: productForm.moq ? Number(productForm.moq) : null,
       price_range: productForm.price_range || null,
+      original_price: productForm.original_price ? Number(productForm.original_price) : null,
+      discounted_price: productForm.discounted_price ? Number(productForm.discounted_price) : null,
       featured: productForm.featured,
     }).eq('id', editingId)
     setLoadingProduct(false)
@@ -372,6 +378,28 @@ export default function AdminPage() {
                     </div>
                   </div>
                 </div>
+                {/* Original + Discounted Price */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-medium text-[#0F172A]">Original Price</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-medium text-[#667085]">₹</span>
+                      <input type="number" min="0" value={productForm.original_price} onChange={(e) => setProductForm((p) => ({ ...p, original_price: e.target.value }))} placeholder="1000" className={`${inputCls} pl-8`} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-medium text-[#0F172A]">Discounted Price</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-medium text-[#25D366]">₹</span>
+                      <input type="number" min="0" value={productForm.discounted_price} onChange={(e) => setProductForm((p) => ({ ...p, discounted_price: e.target.value }))} placeholder="750" className={`${inputCls} pl-8`} />
+                    </div>
+                  </div>
+                </div>
+                {productForm.original_price && productForm.discounted_price && Number(productForm.discounted_price) < Number(productForm.original_price) && (
+                  <p className="text-xs text-[#25D366] font-medium">
+                    💰 {Math.round((1 - Number(productForm.discounted_price) / Number(productForm.original_price)) * 100)}% discount will be shown on the product card
+                  </p>
+                )}
                 {/* Featured toggle */}
                 <label className="flex cursor-pointer items-center justify-between rounded-xl border border-black/10 bg-[#FAF7F2] px-4 py-3">
                   <div>

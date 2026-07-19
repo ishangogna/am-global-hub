@@ -112,15 +112,27 @@ export default async function ProductDetails({
               {data.name}
             </h1>
 
-            {/* Price range */}
-            {data.price_range && (
+            {/* Price */}
+            {data.discounted_price && data.original_price && data.discounted_price < data.original_price ? (
+              <div className="flex items-center gap-3">
+                <span className="text-3xl font-bold text-[#B88A44]">
+                  ₹{data.discounted_price.toLocaleString('en-IN')}
+                </span>
+                <span className="text-lg text-[#667085] line-through">
+                  ₹{data.original_price.toLocaleString('en-IN')}
+                </span>
+                <span className="rounded-full bg-[#25D366] px-3 py-1 text-xs font-bold text-white">
+                  {Math.round((1 - data.discounted_price / data.original_price) * 100)}% OFF
+                </span>
+              </div>
+            ) : data.price_range ? (
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold text-[#B88A44]">
                   {data.price_range}
                 </span>
                 <span className="text-sm text-[#667085]">/ unit (varies by qty)</span>
               </div>
-            )}
+            ) : null}
 
             {/* Divider */}
             <div className="h-px bg-black/5" />

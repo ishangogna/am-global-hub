@@ -81,6 +81,13 @@ export default function ProductCard({ product }: any) {
             </span>
           )}
 
+          {/* Discount badge */}
+          {product.original_price && product.discounted_price && product.discounted_price < product.original_price && (
+            <span className="absolute right-3 top-3 rounded-full bg-[#25D366] px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">
+              {Math.round((1 - product.discounted_price / product.original_price) * 100)}% OFF
+            </span>
+          )}
+
           {/* Wishlist heart */}
           <button
             onClick={toggleSave}
@@ -115,11 +122,20 @@ export default function ProductCard({ product }: any) {
 
           <div className="mt-auto flex items-center justify-between pt-4">
             <div>
-              {product.price_range && (
+              {product.discounted_price && product.original_price && product.discounted_price < product.original_price ? (
+                <div className="flex items-baseline gap-2">
+                  <span className="text-sm font-bold text-[#0F172A]">
+                    ₹{product.discounted_price.toLocaleString('en-IN')}
+                  </span>
+                  <span className="text-xs text-[#667085] line-through">
+                    ₹{product.original_price.toLocaleString('en-IN')}
+                  </span>
+                </div>
+              ) : product.price_range ? (
                 <span className="text-sm font-bold text-[#0F172A]">
                   {product.price_range}
                 </span>
-              )}
+              ) : null}
               {product.moq && (
                 <p className="mt-0.5 text-[10px] text-[#667085]">
                   MOQ: {product.moq} units
