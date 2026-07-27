@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import toast, { Toaster } from 'react-hot-toast'
+import StatsTab from '@/components/admin/StatsTab'
 import {
   Plus, Trash2, Package, LogOut, Loader2, ImageIcon,
-  Tag, LayoutGrid, ChevronDown, Star, MessageSquare, FileText,
+  Tag, LayoutGrid, ChevronDown, Star, MessageSquare, FileText, Mail, Send, Users, BarChart3,
 } from 'lucide-react'
 
 const EMPTY_PRODUCT = {
@@ -39,7 +40,7 @@ function convertImageUrl(url: string): string {
   return url
 }
 
-type Tab = 'products' | 'categories' | 'featured' | 'testimonials' | 'quotes'
+type Tab = 'products' | 'categories' | 'featured' | 'testimonials' | 'quotes' | 'newsletter' | 'users' | 'stats'
 
 export default function AdminPage() {
   const router = useRouter()
@@ -66,18 +67,32 @@ export default function AdminPage() {
   const [loadingTestimonial, setLoadingTestimonial] = useState(false)
   const [deleteTestId, setDeleteTestId] = useState<string | null>(null)
   const [quotes, setQuotes] = useState<any[]>([])
+  const [newsletterPdf, setNewsletterPdf] = useState<File | null>(null)
+  const [newsletterSubject, setNewsletterSubject] = useState('New Catalogue from AM Global Hub')
+  const [newsletterMessage, setNewsletterMessage] = useState('')
+  const [newsletterSending, setNewsletterSending] = useState(false)
+  const [newsletterLogs, setNewsletterLogs] = useState<any[]>([])
+  const [subscriberCount, setSubscriberCount] = useState(0)
+  const [customers, setCustomers] = useState<any[]>([])
+  const [usersPage, setUsersPage] = useState(1)
 
   async function fetchData() {
-    const [{ data: pd }, { data: cd }, { data: td }, { data: qd }] = await Promise.all([
+    const [{ data: pd }, { data: cd }, { data: td }, { data: qd }, { data: nl }, { count: sc }, { data: cust }] = await Promise.all([
       supabase.from('products').select('*').order('created_at', { ascending: false }),
       supabase.from('categories').select('*').order('name'),
       supabase.from('testimonials').select('*').order('created_at', { ascending: false }),
       supabase.from('quote_requests').select('*').order('created_at', { ascending: false }),
+      supabase.from('newsletter_logs').select('*').order('created_at', { ascending: false }).limit(10),
+      supabase.from('customers').select('*', { count: 'exact', head: true }).eq('subscribed_newsletter', true),
+      supabase.from('customers').select('*').order('created_at', { ascending: false }),
     ])
     setProducts(pd || [])
     setCategories(cd || [])
     setTestimonials(td || [])
     setQuotes(qd || [])
+    setNewsletterLogs(nl || [])
+    setSubscriberCount(sc ?? 0)
+    setCustomers(cust || [])
   }
 
   useEffect(() => { fetchData() }, [])
@@ -242,6 +257,51 @@ export default function AdminPage() {
     toast.success('Testimonial deleted.'); fetchData()
   }
 
+  async function sendNewsletter() {
+    if (!newsletterPdf) {
+      toast.error('Please select a PDF file.'); return
+    }
+    setNewsletterSending(true)
+
+    // Upload PDF to Supabase Storage
+    const fileName = `catalogue-${Date.now()}.pdf`
+    const { error: uploadError } = await supabase.storage
+      .from('newsletters')
+      .upload(fileName, newsletterPdf, { contentType: 'application/pdf', upsert: true })
+
+    if (uploadError) {
+      setNewsletterSending(false)
+      toast.error(`Upload failed: ${uploadError.message}`); return
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage.from('newsletters').getPublicUrl(fileName)
+    const pdfUrl = urlData.publicUrl
+
+    // Call the send API
+    const res = await fetch('/api/admin/send-newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pdfUrl,
+        subject: newsletterSubject,
+        message: newsletterMessage || undefined,
+      }),
+    })
+
+    const data = await res.json()
+    setNewsletterSending(false)
+
+    if (!res.ok) {
+      toast.error(data.error || 'Failed to send newsletter.'); return
+    }
+
+    toast.success(`Newsletter sent! ${data.sent} delivered, ${data.failed} failed.`)
+    setNewsletterPdf(null)
+    setNewsletterMessage('')
+    fetchData()
+  }
+
   async function handleLogout() {
     await fetch('/api/admin/logout', { method: 'POST' })
     router.push('/admin/login'); router.refresh()
@@ -298,6 +358,9 @@ export default function AdminPage() {
             { key: 'featured', icon: Star, label: 'Featured' },
             { key: 'testimonials', icon: MessageSquare, label: 'Testimonials' },
             { key: 'quotes', icon: FileText, label: 'Quotes' },
+            { key: 'newsletter', icon: Mail, label: 'Newsletter' },
+            { key: 'users', icon: Users, label: 'Users' },
+            { key: 'stats', icon: BarChart3, label: 'Stats' },
           ] as { key: Tab; icon: any; label: string }[]).map(({ key, icon: Icon, label }) => (
             <button key={key} onClick={() => setTab(key)}
               className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition ${
@@ -864,6 +927,217 @@ export default function AdminPage() {
                     className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed">Next →</button>
                 </div>
               )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── TAB: NEWSLETTER ── */}
+        {tab === 'newsletter' && (
+          <div className="grid gap-8 lg:grid-cols-[440px_1fr]">
+            {/* Send form */}
+            <div className="h-fit rounded-2xl border border-black/5 bg-white shadow-sm">
+              <div className="flex items-center gap-3 border-b border-black/5 px-6 py-5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#B88A44]/10">
+                  <Mail className="h-4 w-4 text-[#B88A44]" />
+                </div>
+                <h2 className="text-lg font-semibold text-[#0F172A]">Send Newsletter</h2>
+              </div>
+              <div className="space-y-5 p-6">
+                {/* Subscriber count */}
+                <div className="rounded-xl border border-[#B88A44]/20 bg-[#B88A44]/5 px-4 py-3">
+                  <p className="text-sm text-[#0F172A]">
+                    <span className="font-bold text-[#B88A44]">{subscriberCount}</span> active subscriber{subscriberCount !== 1 ? 's' : ''} will receive this email.
+                  </p>
+                </div>
+
+                {/* PDF Upload */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-[#0F172A]">
+                    Catalogue PDF <span className="text-[#B88A44]">*</span>
+                  </label>
+                  <div className="flex h-32 w-full items-center justify-center rounded-xl border border-dashed border-black/15 bg-[#FAF7F2] transition hover:border-[#B88A44]">
+                    {newsletterPdf ? (
+                      <div className="flex flex-col items-center gap-2 text-center px-4">
+                        <FileText className="h-8 w-8 text-[#B88A44]" />
+                        <p className="text-xs font-medium text-[#0F172A] truncate max-w-[200px]">{newsletterPdf.name}</p>
+                        <p className="text-[10px] text-[#667085]">{(newsletterPdf.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <button onClick={() => setNewsletterPdf(null)} className="text-[10px] text-red-500 hover:underline">Remove</button>
+                      </div>
+                    ) : (
+                      <label className="flex cursor-pointer flex-col items-center gap-2 text-[#667085]">
+                        <FileText className="h-7 w-7 opacity-40" />
+                        <span className="text-xs">Click to select PDF</span>
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          onChange={(e) => setNewsletterPdf(e.target.files?.[0] || null)}
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+
+                {/* Subject */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-[#0F172A]">Email Subject</label>
+                  <input
+                    value={newsletterSubject}
+                    onChange={(e) => setNewsletterSubject(e.target.value)}
+                    placeholder="New Catalogue from AM Global Hub"
+                    className={inputCls}
+                  />
+                </div>
+
+                {/* Message */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-[#0F172A]">Message Body <span className="text-[#667085]">(optional)</span></label>
+                  <textarea
+                    rows={4}
+                    value={newsletterMessage}
+                    onChange={(e) => setNewsletterMessage(e.target.value)}
+                    placeholder="Hi! Here's our latest product catalogue. Take a look at our newest offerings."
+                    className="w-full resize-none rounded-xl border border-black/10 bg-[#FAF7F2] px-4 py-3 text-sm outline-none transition focus:border-[#B88A44] focus:ring-2 focus:ring-[#B88A44]/20"
+                  />
+                </div>
+
+                {/* Send button */}
+                <button
+                  onClick={sendNewsletter}
+                  disabled={newsletterSending || !newsletterPdf}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#B88A44] py-3.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+                >
+                  {newsletterSending ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" />Sending to {subscriberCount} subscribers…</>
+                  ) : (
+                    <><Send className="h-4 w-4" />Send Newsletter</>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Send history */}
+            <div>
+              <h2 className="mb-5 text-lg font-semibold text-[#0F172A]">
+                Send History <span className="ml-2 rounded-full bg-black/5 px-2.5 py-0.5 text-sm font-normal text-[#667085]">{newsletterLogs.length}</span>
+              </h2>
+              {newsletterLogs.length === 0 ? (
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-black/10 bg-white py-20 text-center">
+                  <Mail className="h-10 w-10 text-black/20" />
+                  <p className="mt-3 text-sm font-medium text-[#667085]">No newsletters sent yet</p>
+                  <p className="mt-1 text-xs text-[#667085]">Upload a PDF and send it to your subscribers.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {newsletterLogs.map((log) => (
+                    <div key={log.id} className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-semibold text-[#0F172A]">{log.subject || 'Newsletter'}</h3>
+                          <p className="mt-1 text-xs text-[#667085]">
+                            {new Date(log.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs">
+                          <span className="rounded-full bg-green-50 px-2.5 py-1 font-semibold text-green-600">
+                            {log.sent_count} sent
+                          </span>
+                          {log.failed_count > 0 && (
+                            <span className="rounded-full bg-red-50 px-2.5 py-1 font-semibold text-red-500">
+                              {log.failed_count} failed
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="mt-3 flex items-center gap-3 text-xs text-[#667085]">
+                        <span>Subscribers: {log.subscribers_count}</span>
+                        {log.pdf_url && (
+                          <a href={log.pdf_url} target="_blank" rel="noopener noreferrer" className="text-[#B88A44] hover:underline">
+                            View PDF →
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB: STATS ── */}
+        {tab === 'stats' && (
+          <StatsTab quotes={quotes} customers={customers} products={products} />
+        )}
+
+        {/* ── TAB: USERS ── */}
+        {tab === 'users' && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-[#0F172A]">Registered Users</h2>
+              <p className="mt-1 text-sm text-[#667085]">
+                All customers who have signed up. Total: <span className="font-semibold text-[#B88A44]">{customers.length}</span> · Subscribed to newsletter: <span className="font-semibold text-[#B88A44]">{subscriberCount}</span>
+              </p>
+            </div>
+            {customers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-black/10 bg-white py-20 text-center">
+                <Users className="h-10 w-10 text-black/20" />
+                <p className="mt-3 text-sm font-medium text-[#667085]">No registered users yet</p>
+              </div>
+            ) : (
+              <>
+                {/* Table */}
+                <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-black/5 bg-[#FAF7F2]">
+                          <th className="px-5 py-3.5 text-xs font-semibold text-[#667085]">Name</th>
+                          <th className="px-5 py-3.5 text-xs font-semibold text-[#667085]">Email</th>
+                          <th className="px-5 py-3.5 text-xs font-semibold text-[#667085]">Phone</th>
+                          <th className="px-5 py-3.5 text-xs font-semibold text-[#667085]">Newsletter</th>
+                          <th className="px-5 py-3.5 text-xs font-semibold text-[#667085]">Joined</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-black/5">
+                        {customers.slice((usersPage - 1) * 10, usersPage * 10).map((c) => (
+                          <tr key={c.id} className="transition hover:bg-[#FAF7F2]">
+                            <td className="px-5 py-3.5">
+                              <p className="font-medium text-[#0F172A]">
+                                {[c.first_name, c.last_name].filter(Boolean).join(' ') || '—'}
+                              </p>
+                            </td>
+                            <td className="px-5 py-3.5 text-[#667085]">{c.email || '—'}</td>
+                            <td className="px-5 py-3.5 text-[#667085]">{c.phone || '—'}</td>
+                            <td className="px-5 py-3.5">
+                              <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${c.subscribed_newsletter ? 'bg-green-50 text-green-600' : 'bg-black/5 text-[#667085]'}`}>
+                                {c.subscribed_newsletter ? 'Subscribed' : 'Unsubscribed'}
+                              </span>
+                            </td>
+                            <td className="px-5 py-3.5 text-xs text-[#667085]">
+                              {c.created_at ? new Date(c.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Pagination */}
+                {Math.ceil(customers.length / 10) > 1 && (
+                  <div className="mt-8 flex items-center justify-center gap-2">
+                    <button onClick={() => setUsersPage((p) => Math.max(1, p - 1))} disabled={usersPage === 1}
+                      className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed">← Prev</button>
+                    {Array.from({ length: Math.ceil(customers.length / 10) }, (_, i) => i + 1).map((p) => (
+                      <button key={p} onClick={() => setUsersPage(p)}
+                        className={`h-9 w-9 rounded-xl text-xs font-medium transition ${usersPage === p ? 'bg-[#B88A44] text-white' : 'border border-black/10 text-[#667085] hover:border-[#B88A44] hover:text-[#B88A44]'}`}>{p}</button>
+                    ))}
+                    <button onClick={() => setUsersPage((p) => Math.min(Math.ceil(customers.length / 10), p + 1))} disabled={usersPage === Math.ceil(customers.length / 10)}
+                      className="rounded-xl border border-black/10 px-4 py-2 text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44] disabled:opacity-40 disabled:cursor-not-allowed">Next →</button>
+                  </div>
+                )}
               </>
             )}
           </div>
