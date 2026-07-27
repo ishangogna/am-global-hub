@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import {
   ChevronRight,
   Package,
@@ -11,6 +12,23 @@ import {
   LayoutGrid,
 } from 'lucide-react'
 import RequestQuoteModal from '@/components/products/RequestQuoteModal'
+import ShareButton from '@/components/products/ShareButton'
+import TrackView from '@/components/products/TrackView'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const { data } = await supabase.from('products').select('name, description, image_url').eq('slug', slug).single()
+  if (!data) return { title: 'Product Not Found' }
+  return {
+    title: `${data.name} | AM Global Hub`,
+    description: data.description || `${data.name} — premium corporate gifting by AM Global Hub. Custom branding, bulk orders, pan-India delivery.`,
+    openGraph: {
+      title: data.name,
+      description: data.description || `Premium corporate gift: ${data.name}`,
+      images: data.image_url ? [data.image_url] : [],
+    },
+  }
+}
 
 export default async function ProductDetails({
   params,
@@ -37,6 +55,7 @@ export default async function ProductDetails({
 
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
+      <TrackView product={{ id: data.id, name: data.name, slug: data.slug, image_url: data.image_url, price_range: data.price_range }} />
 
       {/* ── BREADCRUMB ── */}
       <div className="border-b border-black/5 bg-white">
@@ -107,10 +126,13 @@ export default async function ProductDetails({
               </div>
             )}
 
-            {/* Name */}
-            <h1 className="text-3xl font-semibold leading-tight text-[#0F172A] md:text-4xl">
-              {data.name}
-            </h1>
+            {/* Name + Share */}
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="text-3xl font-semibold leading-tight text-[#0F172A] md:text-4xl">
+                {data.name}
+              </h1>
+              <ShareButton productName={data.name} productUrl={`/products/${slug}`} />
+            </div>
 
             {/* Price */}
             {data.discounted_price && data.original_price && data.discounted_price < data.original_price ? (

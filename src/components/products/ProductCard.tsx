@@ -1,54 +1,34 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowUpRight, Heart } from 'lucide-react'
 import { createAuthClient } from '@/lib/supabase-auth'
 
-export default function ProductCard({ product }: any) {
+interface Props {
+  product: any
+  initialSaved?: boolean
+  userId?: string | null
+}
+
+export default function ProductCard({ product, initialSaved = false, userId: propUserId = null }: Props) {
   const supabase = createAuthClient()
-  const [saved, setSaved] = useState(false)
-  const [userId, setUserId] = useState<string | null>(null)
-
-  useEffect(() => {
-    async function checkSaved() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      setUserId(user.id)
-
-      const { data } = await supabase
-        .from('saved_products')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('product_id', product.id)
-        .single()
-
-      if (data) setSaved(true)
-    }
-    checkSaved()
-  }, [product.id])
+  const [saved, setSaved] = useState(initialSaved)
 
   async function toggleSave(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
 
-    if (!userId) {
-      // Not logged in — redirect to auth
+    if (!propUserId) {
       window.location.href = '/auth'
       return
     }
 
     if (saved) {
-      await supabase
-        .from('saved_products')
-        .delete()
-        .eq('user_id', userId)
-        .eq('product_id', product.id)
+      await supabase.from('saved_products').delete().eq('user_id', propUserId).eq('product_id', product.id)
       setSaved(false)
     } else {
-      await supabase
-        .from('saved_products')
-        .insert([{ user_id: userId, product_id: product.id }])
+      await supabase.from('saved_products').insert([{ user_id: propUserId, product_id: product.id }])
       setSaved(true)
     }
   }
@@ -63,6 +43,7 @@ export default function ProductCard({ product }: any) {
             <img
               src={product.image_url}
               alt={product.name}
+              loading="lazy"
               className="h-full w-full object-contain p-5 transition duration-500 group-hover:scale-105"
             />
           ) : (
@@ -71,7 +52,6 @@ export default function ProductCard({ product }: any) {
             </div>
           )}
 
-          {/* Gold gradient on hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#B88A44]/10 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
 
           {/* Featured badge */}
@@ -91,7 +71,7 @@ export default function ProductCard({ product }: any) {
           {/* Wishlist heart */}
           <button
             onClick={toggleSave}
-            className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border transition duration-200 ${
+            className={`absolute ${product.original_price && product.discounted_price && product.discounted_price < product.original_price ? 'right-3 top-10' : 'right-3 top-3'} flex h-8 w-8 items-center justify-center rounded-full border transition duration-200 ${
               saved
                 ? 'border-red-200 bg-red-50 text-red-500'
                 : 'border-black/10 bg-white/80 text-[#667085] opacity-0 group-hover:opacity-100 hover:border-red-200 hover:text-red-500'
@@ -148,7 +128,6 @@ export default function ProductCard({ product }: any) {
             </div>
           </div>
         </div>
-
       </div>
     </Link>
   )

@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import toast, { Toaster } from 'react-hot-toast'
 import StatsTab from '@/components/admin/StatsTab'
+import BulkUpload from '@/components/admin/BulkUpload'
 import {
   Plus, Trash2, Package, LogOut, Loader2, ImageIcon,
   Tag, LayoutGrid, ChevronDown, Star, MessageSquare, FileText, Mail, Send, Users, BarChart3,
@@ -51,6 +52,8 @@ export default function AdminPage() {
   const [categoryForm, setCategoryForm] = useState(EMPTY_CATEGORY)
   const [autoSlug, setAutoSlug] = useState(true)
   const [autoCatSlug, setAutoCatSlug] = useState(true)
+  const [editingCatId, setEditingCatId] = useState<string | null>(null)
+  const [editingTestId, setEditingTestId] = useState<string | null>(null)
   const [loadingProduct, setLoadingProduct] = useState(false)
   const [loadingCategory, setLoadingCategory] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -212,6 +215,59 @@ export default function AdminPage() {
     setDeleteCatId(null)
     if (error) { toast.error(error.message); return }
     toast.success('Category deleted.'); fetchData()
+  }
+
+  function startEditCategory(cat: any) {
+    setEditingCatId(cat.id)
+    setCategoryForm({ name: cat.name || '', slug: cat.slug || '', description: cat.description || '', image_url: cat.image_url || '' })
+    setAutoCatSlug(false)
+  }
+
+  function cancelEditCategory() {
+    setEditingCatId(null)
+    setCategoryForm(EMPTY_CATEGORY)
+    setAutoCatSlug(true)
+  }
+
+  async function updateCategory() {
+    if (!categoryForm.name.trim() || !categoryForm.slug.trim()) {
+      toast.error('Category name and slug are required.'); return
+    }
+    setLoadingCategory(true)
+    const { error } = await supabase.from('categories').update({
+      name: categoryForm.name, slug: categoryForm.slug,
+      description: categoryForm.description || null,
+      image_url: categoryForm.image_url || null,
+    }).eq('id', editingCatId)
+    setLoadingCategory(false)
+    if (error) { toast.error(error.message); return }
+    toast.success('Category updated!')
+    setEditingCatId(null); setCategoryForm(EMPTY_CATEGORY); setAutoCatSlug(true); fetchData()
+  }
+
+  function startEditTestimonial(t: any) {
+    setEditingTestId(t.id)
+    setTestimonialForm({ name: t.name || '', role: t.role || '', text: t.text || '', rating: String(t.rating || 5) })
+  }
+
+  function cancelEditTestimonial() {
+    setEditingTestId(null)
+    setTestimonialForm(EMPTY_TESTIMONIAL)
+  }
+
+  async function updateTestimonial() {
+    if (!testimonialForm.name.trim() || !testimonialForm.text.trim()) {
+      toast.error('Name and text are required.'); return
+    }
+    setLoadingTestimonial(true)
+    const { error } = await supabase.from('testimonials').update({
+      name: testimonialForm.name, role: testimonialForm.role || null,
+      text: testimonialForm.text, rating: Number(testimonialForm.rating) || 5,
+    }).eq('id', editingTestId)
+    setLoadingTestimonial(false)
+    if (error) { toast.error(error.message); return }
+    toast.success('Testimonial updated!')
+    setEditingTestId(null); setTestimonialForm(EMPTY_TESTIMONIAL); fetchData()
   }
 
   async function updateQuoteStatus(id: string, status: string) {
@@ -489,9 +545,12 @@ export default function AdminPage() {
 
             {/* Products grid */}
             <div>
-              <h2 className="mb-5 text-lg font-semibold text-[#0F172A]">
-                All Products <span className="ml-2 rounded-full bg-black/5 px-2.5 py-0.5 text-sm font-normal text-[#667085]">{products.length}</span>
-              </h2>
+              <div className="mb-5 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-[#0F172A]">
+                  All Products <span className="ml-2 rounded-full bg-black/5 px-2.5 py-0.5 text-sm font-normal text-[#667085]">{products.length}</span>
+                </h2>
+                <BulkUpload categories={categories} onDone={fetchData} />
+              </div>
               {products.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-black/10 bg-white py-20 text-center">
                   <Package className="h-10 w-10 text-black/20" />
@@ -580,7 +639,8 @@ export default function AdminPage() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#B88A44]/10">
                   <Plus className="h-4 w-4 text-[#B88A44]" />
                 </div>
-                <h2 className="text-lg font-semibold text-[#0F172A]">Add Category</h2>
+                <h2 className="text-lg font-semibold text-[#0F172A]">{editingCatId ? 'Edit Category' : 'Add Category'}</h2>
+                {editingCatId && <button onClick={cancelEditCategory} className="ml-auto text-xs font-medium text-[#667085] transition hover:text-red-500">Cancel</button>}
               </div>
               <div className="space-y-5 p-6">
                 {/* Image preview */}
@@ -614,9 +674,9 @@ export default function AdminPage() {
                   <label className="mb-1.5 block text-xs font-medium text-[#0F172A]">Description</label>
                   <textarea rows={3} value={categoryForm.description} onChange={(e) => setCategoryForm((p) => ({ ...p, description: e.target.value }))} placeholder="Brief description of this category…" className="w-full resize-none rounded-xl border border-black/10 bg-[#FAF7F2] px-4 py-3 text-sm outline-none transition focus:border-[#B88A44] focus:ring-2 focus:ring-[#B88A44]/20" />
                 </div>
-                <button onClick={addCategory} disabled={loadingCategory}
+                <button onClick={editingCatId ? updateCategory : addCategory} disabled={loadingCategory}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#B88A44] py-3.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60">
-                  {loadingCategory ? <><Loader2 className="h-4 w-4 animate-spin" />Adding…</> : <><Plus className="h-4 w-4" />Add Category</>}
+                  {loadingCategory ? <><Loader2 className="h-4 w-4 animate-spin" />{editingCatId ? 'Updating…' : 'Adding…'}</> : <><Plus className="h-4 w-4" />{editingCatId ? 'Update Category' : 'Add Category'}</>}
                 </button>
               </div>
             </div>
@@ -649,12 +709,15 @@ export default function AdminPage() {
                         <div className="mt-4 flex gap-2">
                           <a href={`/categories/${cat.slug}`} target="_blank" rel="noopener noreferrer"
                             className="flex-1 rounded-xl border border-black/10 py-2 text-center text-xs font-medium text-[#667085] transition hover:border-[#B88A44] hover:text-[#B88A44]">
-                            View Page
+                            View
                           </a>
+                          <button onClick={() => startEditCategory(cat)}
+                            className="flex-1 rounded-xl border border-[#B88A44]/30 py-2 text-center text-xs font-medium text-[#B88A44] transition hover:bg-[#B88A44]/5">
+                            Edit
+                          </button>
                           <button onClick={() => deleteCategory(cat.id)} disabled={deleteCatId === cat.id}
                             className="flex items-center gap-1.5 rounded-xl border border-red-100 px-3 py-2 text-xs font-medium text-red-500 transition hover:bg-red-50 disabled:opacity-50">
                             {deleteCatId === cat.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                            Delete
                           </button>
                         </div>
                       </div>
@@ -754,7 +817,8 @@ export default function AdminPage() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#B88A44]/10">
                   <Plus className="h-4 w-4 text-[#B88A44]" />
                 </div>
-                <h2 className="text-lg font-semibold text-[#0F172A]">Add Testimonial</h2>
+                <h2 className="text-lg font-semibold text-[#0F172A]">{editingTestId ? 'Edit Testimonial' : 'Add Testimonial'}</h2>
+                {editingTestId && <button onClick={cancelEditTestimonial} className="ml-auto text-xs font-medium text-[#667085] transition hover:text-red-500">Cancel</button>}
               </div>
               <div className="space-y-5 p-6">
                 <div>
@@ -781,9 +845,9 @@ export default function AdminPage() {
                     <span className="ml-2 text-sm text-[#667085]">{testimonialForm.rating}/5</span>
                   </div>
                 </div>
-                <button onClick={addTestimonial} disabled={loadingTestimonial}
+                <button onClick={editingTestId ? updateTestimonial : addTestimonial} disabled={loadingTestimonial}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#B88A44] py-3.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60">
-                  {loadingTestimonial ? <><Loader2 className="h-4 w-4 animate-spin" />Adding…</> : <><Plus className="h-4 w-4" />Add Testimonial</>}
+                  {loadingTestimonial ? <><Loader2 className="h-4 w-4 animate-spin" />{editingTestId ? 'Updating…' : 'Adding…'}</> : <><Plus className="h-4 w-4" />{editingTestId ? 'Update Testimonial' : 'Add Testimonial'}</>}
                 </button>
               </div>
             </div>
@@ -816,11 +880,17 @@ export default function AdminPage() {
                         <p className="text-sm font-semibold text-[#0F172A]">{t.name}</p>
                         {t.role && <p className="text-xs text-[#667085]">{t.role}</p>}
                       </div>
-                      <button onClick={() => deleteTestimonial(t.id)} disabled={deleteTestId === t.id}
-                        className="mt-3 flex items-center gap-1.5 rounded-xl border border-red-100 px-3 py-2 text-xs font-medium text-red-500 transition hover:bg-red-50 disabled:opacity-50">
-                        {deleteTestId === t.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                        Delete
-                      </button>
+                      <div className="mt-3 flex gap-2">
+                        <button onClick={() => startEditTestimonial(t)}
+                          className="flex-1 rounded-xl border border-[#B88A44]/30 py-2 text-center text-xs font-medium text-[#B88A44] transition hover:bg-[#B88A44]/5">
+                          Edit
+                        </button>
+                        <button onClick={() => deleteTestimonial(t.id)} disabled={deleteTestId === t.id}
+                          className="flex items-center gap-1.5 rounded-xl border border-red-100 px-3 py-2 text-xs font-medium text-red-500 transition hover:bg-red-50 disabled:opacity-50">
+                          {deleteTestId === t.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

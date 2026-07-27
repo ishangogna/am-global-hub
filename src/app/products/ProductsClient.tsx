@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import ProductCard from '@/components/products/ProductCard'
+import RecentlyViewed from '@/components/products/RecentlyViewed'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Search, SlidersHorizontal, Package } from 'lucide-react'
 
 export default function ProductsClient({
@@ -16,9 +18,27 @@ export default function ProductsClient({
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [searchInput, setSearchInput] = useState('')
+  const [suggestions, setSuggestions] = useState<any[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
   const [category, setCategoryState] = useState<string | null>(initialCategory)
   const [page, setPage] = useState(1)
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
+  const [userId, setUserId] = useState<string | null>(null)
   const PAGE_SIZE = 12
+
+  // Batch fetch saved product IDs on mount
+  useEffect(() => {
+    async function loadSaved() {
+      const { createAuthClient } = await import('@/lib/supabase-auth')
+      const sb = createAuthClient()
+      const { data: { user } } = await sb.auth.getUser()
+      if (!user) return
+      setUserId(user.id)
+      const { data } = await sb.from('saved_products').select('product_id').eq('user_id', user.id)
+      if (data) setSavedIds(new Set(data.map((r: any) => r.product_id)))
+    }
+    loadSaved()
+  }, [])
 
   const fetchProducts = async (opts?: {
     search?: string
@@ -70,8 +90,23 @@ export default function ProductsClient({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSearch()
+    if (e.key === 'Enter') { handleSearch(); setShowSuggestions(false) }
   }
+
+  // Autocomplete
+  useEffect(() => {
+    if (searchInput.length < 2) { setSuggestions([]); return }
+    const timeout = setTimeout(async () => {
+      const { data } = await supabase
+        .from('products')
+        .select('id, name, slug, image_url, price_range')
+        .ilike('name', `%${searchInput}%`)
+        .limit(5)
+      setSuggestions(data || [])
+      setShowSuggestions(true)
+    }, 300)
+    return () => clearTimeout(timeout)
+  }, [searchInput])
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
@@ -108,21 +143,51 @@ export default function ProductsClient({
             </p>
 
             {/* SEARCH */}
-            <div className="mx-auto mt-8 flex max-w-lg items-center gap-2 rounded-2xl border border-black/10 bg-white p-2 shadow-sm">
-              <Search className="ml-3 h-4 w-4 shrink-0 text-[#667085]" />
-              <input
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Search products…"
-                className="flex-1 bg-transparent py-2 text-sm text-[#0F172A] outline-none placeholder:text-[#667085]"
-              />
-              <button
-                onClick={handleSearch}
-                className="rounded-xl bg-[#B88A44] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                Search
-              </button>
+            <div className="relative mx-auto mt-8 max-w-lg">
+              <div className="flex items-center gap-2 rounded-2xl border border-black/10 bg-white p-2 shadow-sm">
+                <Search className="ml-3 h-4 w-4 shrink-0 text-[#667085]" />
+                <input
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  placeholder="Search products…"
+                  className="flex-1 bg-transparent py-2 text-sm text-[#0F172A] outline-none placeholder:text-[#667085]"
+                />
+                <button
+                  onClick={() => { handleSearch(); setShowSuggestions(false) }}
+                  className="rounded-xl bg-[#B88A44] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                >
+                  Search
+                </button>
+              </div>
+
+              {/* Autocomplete dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-xl">
+                  {suggestions.map((s) => (
+                    <Link
+                      key={s.id}
+                      href={`/products/${s.slug}`}
+                      className="flex items-center gap-3 px-4 py-3 transition hover:bg-[#FAF7F2]"
+                      onClick={() => setShowSuggestions(false)}
+                    >
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-[#F8F5EF]">
+                        {s.image_url ? (
+                          <img src={s.image_url} alt={s.name} className="h-full w-full object-contain p-1" />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-sm opacity-30">🎁</div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[#0F172A] truncate">{s.name}</p>
+                        {s.price_range && <p className="text-xs text-[#B88A44]">{s.price_range}</p>}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -202,7 +267,7 @@ export default function ProductsClient({
             <>
               <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
                 {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard key={product.id} product={product} initialSaved={savedIds.has(product.id)} userId={userId} />
                 ))}
               </div>
 
@@ -280,6 +345,9 @@ export default function ProductsClient({
 
         </div>
       </section>
+
+      {/* Recently Viewed */}
+      <RecentlyViewed />
 
     </div>
   )
