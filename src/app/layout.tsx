@@ -1,21 +1,23 @@
 import './globals.css'
 
 import type { Metadata } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { DM_Sans, Sora } from 'next/font/google'
 
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import RouteLoader from '@/components/layout/RouteLoader'
 import WhatsAppFloat from '@/components/layout/WhatsAppFloat'
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-body',
+  weight: ['400', '500', '600', '700'],
 })
 
-const playfair = Playfair_Display({
+const sora = Sora({
   subsets: ['latin'],
-  variable: '--font-playfair',
+  variable: '--font-heading',
+  weight: ['400', '500', '600', '700', '800'],
 })
 
 export const metadata: Metadata = {
@@ -32,8 +34,9 @@ export default function RootLayout({
     <html lang='en'>
       <body
         className={`
-          ${inter.variable}
-          ${playfair.variable}
+          ${dmSans.variable}
+          ${dmSans.className}
+          ${sora.variable}
           bg-[#FAF7F2]
           text-[#0F172A]
           antialiased
