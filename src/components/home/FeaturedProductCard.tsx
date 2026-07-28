@@ -77,7 +77,7 @@ export default function FeaturedProductCard({ product }: Props) {
         <Link href={`/products/${product.slug}`}>
           <div className="overflow-hidden bg-[#F8F5EF] p-8">
             <img
-              src={product.image_url ?? '/images/hero-gift.png'}
+              src={product.image_url ?? '/images/image.jpg'}
               alt={product.name}
               className="h-56 w-full object-contain transition duration-500 group-hover:scale-105"
             />

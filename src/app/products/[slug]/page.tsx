@@ -88,7 +88,7 @@ export default async function ProductDetails({
             {/* Primary image */}
             <div className="group overflow-hidden rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
               <img
-                src={data.image_url ?? '/images/hero-gift.png'}
+                src={data.image_url ?? '/images/image.png'}
                 alt={data.name}
                 className="h-[360px] w-full object-contain transition duration-500 group-hover:scale-[1.03] md:h-[460px]"
               />
@@ -236,7 +236,7 @@ export default async function ProductDetails({
                 >
                   <div className="aspect-square overflow-hidden bg-[#F8F5EF] p-4">
                     <img
-                      src={item.image_url ?? '/images/hero-gift.png'}
+                      src={item.image_url ?? '/images/image.jpg'}
                       alt={item.name}
                       className="h-full w-full object-contain transition duration-500 group-hover:scale-105"
                     />

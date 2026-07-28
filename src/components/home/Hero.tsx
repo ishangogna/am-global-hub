@@ -148,19 +148,24 @@ export default function Hero({ hero }: HeroProps) {
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           className='relative order-1 mx-auto w-full max-w-[620px] lg:order-2'
         >
-          {/* Glow */}
-          <div className='absolute -inset-6 rounded-[50px] bg-gradient-to-br from-[#B88A44]/10 via-transparent to-[#B88A44]/5 blur-2xl animate-pulse' />
-
-          {/* IMAGE CARD */}
-          <div className='relative overflow-hidden rounded-[28px] border border-white/60 bg-white/80 p-3 shadow-2xl backdrop-blur-sm md:rounded-[36px] md:p-4'>
-            <Image
-              src={hero?.image_url || '/images/hero-gift.png'}
-              alt='Corporate gifting'
-              width={1200}
-              height={1200}
-              priority
-              className='h-[280px] w-full rounded-[22px] object-cover sm:h-[380px] md:h-[480px] lg:h-[560px]'
-            />
+          {/* IMAGE — Modern blob mask with layered depth */}
+          <div className='relative'>
+            {/* Background accent shape */}
+            <div className='absolute -inset-4 rounded-[40px] bg-gradient-to-br from-[#B88A44]/20 to-[#D4A853]/10 blur-sm' style={{ clipPath: 'polygon(10% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%, 0% 15%)' }} />
+            
+            {/* Main image with geometric clip */}
+            <div className='relative overflow-hidden rounded-[32px]' style={{ clipPath: 'polygon(5% 0%, 100% 0%, 100% 88%, 90% 100%, 0% 100%, 0% 12%)' }}>
+              <Image
+                src={hero?.image_url || '/images/image.jpg'}
+                alt='Corporate gifting'
+                width={1200}
+                height={1200}
+                priority
+                className='h-[280px] w-full object-cover sm:h-[380px] md:h-[480px] lg:h-[560px]'
+              />
+              {/* Gold gradient overlay */}
+              <div className='absolute inset-0 bg-gradient-to-tr from-[#B88A44]/20 via-transparent to-transparent' />
+            </div>
 
             {/* Floating badge */}
             <motion.div
