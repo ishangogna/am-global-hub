@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
                 <div style="margin-top: 24px; padding: 16px; background: #FAF7F2; border-radius: 12px; border: 1px solid #E2D9CE;">
                   <p style="color: #B88A44; font-size: 13px; font-weight: 600; margin: 0 0 4px 0;">AM Global Hub</p>
                   <p style="color: #667085; font-size: 12px; margin: 0;">Premium Corporate Gifting · New Delhi</p>
-                  <p style="color: #667085; font-size: 12px; margin: 4px 0 0 0;">WhatsApp: +91 8168667321</p>
+                  <p style="color: #667085; font-size: 12px; margin: 4px 0 0 0;">WhatsApp: +91 8368772989</p>
                 </div>
                 <p style="color: #999; font-size: 11px; margin-top: 24px;">
                   You're receiving this because you subscribed to AM Global Hub newsletters. You can unsubscribe from your account settings.

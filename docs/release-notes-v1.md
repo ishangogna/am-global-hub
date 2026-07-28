@@ -101,4 +101,4 @@ From your Account page you can:
 
 We're constantly improving. If you have feedback or ideas, just WhatsApp us — we're always listening.
 
-**— Raman & Akshit, AM Global Hub**
+**— Akshit, AM Global Hub**
