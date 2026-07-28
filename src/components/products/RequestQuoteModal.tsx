@@ -34,6 +34,7 @@ export default function RequestQuoteModal({ productName, productId }: Props) {
 
   const [open, setOpen] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [form, setForm] = useState({
     name: '',
     company: '',
@@ -50,6 +51,7 @@ export default function RequestQuoteModal({ productName, productId }: Props) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
       setUserId(user.id)
+      setIsLoggedIn(true)
 
       const { data: cust } = await supabase
         .from('customers')
@@ -119,7 +121,13 @@ export default function RequestQuoteModal({ productName, productId }: Props) {
     <>
       {/* TRIGGER */}
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          if (!isLoggedIn) {
+            window.location.href = `/auth?redirect=${encodeURIComponent(window.location.pathname)}`
+            return
+          }
+          setOpen(true)
+        }}
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#B88A44] px-8 py-4 text-base font-semibold text-white transition hover:opacity-90 active:scale-[0.98]"
       >
         <MessageSquare className="h-5 w-5" />

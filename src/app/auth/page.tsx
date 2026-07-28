@@ -15,6 +15,12 @@ export default function AuthPage() {
   const router = useRouter()
   const supabase = createAuthClient()
 
+  function getRedirect() {
+    if (typeof window === 'undefined') return '/account'
+    const params = new URLSearchParams(window.location.search)
+    return params.get('redirect') || '/account'
+  }
+
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
@@ -88,7 +94,7 @@ export default function AuthPage() {
     if (data.isNewUser) {
       setStep('profile')
     } else {
-      router.push('/account')
+      router.push(getRedirect())
       router.refresh()
     }
   }
@@ -117,7 +123,7 @@ export default function AuthPage() {
       return
     }
 
-    router.push('/account')
+    router.push(getRedirect())
     router.refresh()
   }
 
