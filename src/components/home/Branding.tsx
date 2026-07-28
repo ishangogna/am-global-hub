@@ -29,18 +29,26 @@ export default function Branding() {
             transition={{ duration: 0.7 }}
             className='relative'
           >
-            <div className='relative overflow-hidden rounded-[32px] border border-white/60 bg-white/50 p-3 shadow-2xl backdrop-blur-sm'>
-              <img
-                src='https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=800&q=80'
-                alt='Corporate Branding & Premium Packaging'
-                className='h-[420px] w-full rounded-[24px] object-cover lg:h-[520px]'
-              />
+            <div className='relative'>
+              {/* Background accent shape */}
+              <div className='absolute -inset-3 rounded-[40px] bg-gradient-to-br from-[#B88A44]/15 to-[#D4A853]/5 blur-sm' style={{ clipPath: 'polygon(0% 10%, 90% 0%, 100% 85%, 15% 100%)' }} />
 
-              {/* Overlay badge */}
+              {/* Main image with geometric clip */}
+              <div className='relative overflow-hidden rounded-[32px]' style={{ clipPath: 'polygon(0% 8%, 92% 0%, 100% 88%, 12% 100%)' }}>
+                <img
+                  src='/images/footerImage.jpeg'
+                  alt='Corporate Branding & Premium Packaging'
+                  className='h-[420px] w-full object-cover lg:h-[520px]'
+                />
+                {/* Gold gradient overlay */}
+                <div className='absolute inset-0 bg-gradient-to-tr from-[#B88A44]/15 via-transparent to-transparent' />
+              </div>
+
+              {/* Floating badge */}
               <motion.div
                 animate={{ y: [-5, 5, -5] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                className='absolute -right-2 bottom-8 rounded-2xl border border-white/50 bg-white/95 px-5 py-4 shadow-xl backdrop-blur-sm md:right-6'
+                className='absolute -right-2 bottom-8 rounded-2xl border border-white/20 bg-white/95 px-5 py-4 shadow-xl backdrop-blur-sm md:right-6'
               >
                 <p className='text-2xl font-bold text-[#B88A44]'>500+</p>
                 <p className='text-xs text-[#6B7280]'>Custom orders delivered</p>
