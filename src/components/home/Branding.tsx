@@ -23,10 +23,10 @@ export default function Branding() {
 
           {/* IMAGE SIDE */}
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
+            initial={{ opacity: 0, translateX: -20 }}
+            whileInView={{ opacity: 1, translateX: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
             className='relative'
           >
             <div className='relative'>
@@ -46,8 +46,8 @@ export default function Branding() {
 
               {/* Floating badge */}
               <motion.div
-                animate={{ y: [-5, 5, -5] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                animate={{ translateY: [-3, 3, -3] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
                 className='absolute -right-2 bottom-8 rounded-2xl border border-white/20 bg-white/95 px-5 py-4 shadow-xl backdrop-blur-sm md:right-6'
               >
                 <p className='text-2xl font-bold text-[#B88A44]'>500+</p>
@@ -58,10 +58,10 @@ export default function Branding() {
 
           {/* CONTENT SIDE */}
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            initial={{ opacity: 0, translateX: 20 }}
+            whileInView={{ opacity: 1, translateX: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
             className='max-w-xl'
           >
             <span className='inline-flex rounded-full border border-[#B88A44]/20 bg-white/80 px-4 py-2 text-sm font-medium text-[#B88A44] backdrop-blur-sm'>
@@ -84,7 +84,7 @@ export default function Branding() {
               {features.map((f) => (
                 <div
                   key={f.title}
-                  className='flex gap-4 rounded-2xl border border-white/60 bg-white/50 p-4 backdrop-blur-sm transition hover:bg-white/80 hover:shadow-md'
+                  className='flex gap-4 rounded-2xl border border-black/[0.04] bg-[#FEFDFB] p-4 transition-colors duration-150 hover:bg-white hover:shadow-sm'
                 >
                   <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#B88A44]/10'>
                     <Check className='h-4 w-4 text-[#B88A44]' />

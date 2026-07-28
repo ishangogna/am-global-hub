@@ -1,94 +1,90 @@
-import {
-  Package,
-  Palette,
-  Truck,
-  Sparkles,
-} from 'lucide-react'
+'use client'
+
+import { motion } from 'framer-motion'
+import { Package, Palette, Truck, Sparkles } from 'lucide-react'
 
 const steps = [
   {
     icon: Package,
     title: 'Choose Products',
-    description:
-      'Explore curated gifting collections tailored for employees, clients, events, and executive experiences.',
+    description: 'Explore curated gifting collections tailored for employees, clients, events, and executive experiences.',
   },
   {
     icon: Palette,
     title: 'Customize Branding',
-    description:
-      'Add your company branding, packaging, inserts, and personalized touches for a premium presentation.',
+    description: 'Add your company branding, packaging, inserts, and personalized touches for a premium presentation.',
   },
   {
     icon: Sparkles,
     title: 'We Curate & Pack',
-    description:
-      'Our team handles sourcing, quality checks, premium packaging, and gifting preparation end-to-end.',
+    description: 'Our team handles sourcing, quality checks, premium packaging, and gifting preparation end-to-end.',
   },
   {
     icon: Truck,
     title: 'Nationwide Delivery',
-    description:
-      'Fast and reliable delivery across India with seamless coordination for bulk and corporate orders.',
+    description: 'Fast and reliable delivery across India with seamless coordination for bulk and corporate orders.',
   },
 ]
 
 export default function HowItWorks() {
   return (
-    <section className='bg-white py-24'>
+    <section className='bg-gradient-to-b from-white to-[#FDFBF7] py-24 lg:py-32'>
       <div className='container-premium'>
+
         {/* HEADER */}
-        <div className='mx-auto max-w-3xl text-center'>
-          <span className='inline-flex rounded-full border border-[#B88A44]/15 bg-[#B88A44]/10 px-4 py-2 text-sm font-medium text-[#B88A44]'>
-            Simple & Seamless Process
-          </span>
-
-          <h2 className='mt-6 text-4xl font-semibold tracking-tight text-[#111827] md:text-5xl'>
+        <div className='mx-auto max-w-2xl text-center'>
+          <p className='text-xs font-semibold uppercase tracking-[0.2em] text-[#B88A44]'>
             How It Works
-          </h2>
-
-          <p className='mt-6 text-lg leading-8 text-[#667085]'>
-            From product selection to doorstep delivery, we make
-            corporate gifting effortless and premium.
           </p>
+          <h2 className='mt-4 text-3xl font-bold tracking-tight text-[#0F172A] md:text-5xl'>
+            From idea to delivery
+            <span className='block bg-gradient-to-r from-[#B88A44] to-[#D4A853] bg-clip-text text-transparent'>
+              in 4 simple steps
+            </span>
+          </h2>
         </div>
 
-        {/* STEPS */}
-        <div className='mt-20 grid gap-6 md:grid-cols-2 xl:grid-cols-4'>
-          {steps.map((step, index) => {
-            const Icon = step.icon
+        {/* STEPS — connected timeline */}
+        <div className='relative mt-20'>
 
-            return (
-              <div
-                key={step.title}
-                className='group relative overflow-hidden rounded-[28px] border border-black/5 bg-[#FCFBF8] p-8 transition duration-300 hover:-translate-y-1 hover:shadow-xl'
-              >
-                {/* STEP NUMBER */}
-                <div className='absolute right-6 top-6 text-5xl font-black text-black/[0.03] transition-colors duration-500 group-hover:text-[#B88A44]/10'>
-                  0{index + 1}
-                </div>
+          {/* Horizontal connector line (desktop) */}
+          <div className='absolute left-[calc(12.5%+28px)] right-[calc(12.5%+28px)] top-7 hidden h-[2px] bg-gradient-to-r from-[#B88A44]/20 via-[#B88A44]/40 to-[#B88A44]/20 xl:block' />
 
-                {/* ICON */}
-                <div className='flex h-14 w-14 items-center justify-center rounded-2xl bg-[#B88A44]/10 text-[#B88A44]'>
-                  <Icon className='h-6 w-6' />
-                </div>
+          <div className='grid gap-12 md:grid-cols-2 xl:grid-cols-4 xl:gap-8'>
+            {steps.map((step, index) => {
+              const Icon = step.icon
+              return (
+                <motion.div
+                  key={step.title}
+                  initial={{ opacity: 0, translateY: 20 }}
+                  whileInView={{ opacity: 1, translateY: 0 }}
+                  viewport={{ once: true, margin: '-80px' }}
+                  transition={{ duration: 0.8, delay: index * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+                  className='relative flex flex-col items-center text-center'
+                >
+                  {/* Step circle */}
+                  <div className='relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#B88A44] to-[#D4A853] text-white shadow-lg shadow-[#B88A44]/20'>
+                    <Icon className='h-5 w-5' />
+                  </div>
 
-                {/* CONTENT */}
-                <div className='mt-8'>
-                  <h3 className='text-xl font-semibold text-[#111827]'>
+                  {/* Step number */}
+                  <span className='mt-4 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#FAF7F2] text-[10px] font-bold text-[#B88A44] ring-1 ring-[#B88A44]/20'>
+                    {index + 1}
+                  </span>
+
+                  {/* Content */}
+                  <h3 className='mt-4 text-lg font-bold text-[#0F172A]'>
                     {step.title}
                   </h3>
-
-                  <p className='mt-4 text-sm leading-7 text-[#667085]'>
+                  <p className='mt-2 max-w-[240px] text-sm leading-6 text-[#6B7280]'>
                     {step.description}
                   </p>
-                </div>
-
-                {/* HOVER GLOW */}
-                <div className='absolute inset-0 bg-gradient-to-br from-[#B88A44]/0 via-[#B88A44]/0 to-[#B88A44]/5 opacity-0 transition duration-500 group-hover:opacity-100' />
-              </div>
-            )
-          })}
+                </motion.div>
+              )
+            })}
+          </div>
         </div>
+
       </div>
     </section>
   )

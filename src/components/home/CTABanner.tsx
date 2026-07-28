@@ -14,8 +14,8 @@ export default function CTABanner() {
 
       <div className='container-premium relative text-center'>
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, translateY: 20 }}
+          whileInView={{ opacity: 1, translateY: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
@@ -30,10 +30,10 @@ export default function CTABanner() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, translateY: 15 }}
+          whileInView={{ opacity: 1, translateY: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
           className='mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row'
         >
           <Link
